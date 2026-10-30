@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>San Bernardo · Fraijanes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.8.0/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@5.8.0/dist/maplibre-gl.js"></script>
+<style>
+:root{
+  --bg:#05070a; --ink:#f3efe6; --mute:rgba(243,239,230,.62); --faint:rgba(243,239,230,.34);
+  --line:rgba(243,239,230,.16); --accent:#cfe0a0; --gold:#e6b866; --sage:#9fbf8f; --pine:#5f8f6e;
+  --loss:#ff5a3c; --water:#7cc6e8; --neighbor:#c7a5ff;
+  --serif:"Instrument Serif",Georgia,serif; --sans:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+#map{position:fixed;inset:0;z-index:1;background:transparent}
+.maplibregl-canvas{outline:none}
+.maplibregl-ctrl-bottom-right{bottom:64px!important}
+.maplibregl-ctrl-attrib{background:rgba(0,0,0,.45)!important;color:var(--faint)!important;font-size:10px!important}
+.maplibregl-ctrl-attrib a{color:var(--mute)!important}
+#gfw{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+#gfw .yr{position:absolute;inset:0;opacity:0;transition:opacity .35s}
+#gfw img{position:absolute;image-rendering:pixelated}
+#gfw .yr.on{opacity:.62}
+#gfw .yr.cur{opacity:1;filter:brightness(1.5) saturate(1.4) drop-shadow(0 0 3px rgba(255,90,60,.9))}
+#scrim{position:fixed;inset:0;z-index:3;pointer-events:none;transition:background .9s}
+.scrim-left{background:linear-gradient(90deg,rgba(5,7,10,.88) 0%,rgba(5,7,10,.62) 34%,rgba(5,7,10,0) 62%)}
+.scrim-full{background:rgba(5,7,10,.72)}
+.scrim-bottom{background:linear-gradient(0deg,rgba(5,7,10,.9) 0%,rgba(5,7,10,.25) 45%,rgba(5,7,10,0) 70%)}
+.scrim-none{background:linear-gradient(0deg,rgba(5,7,10,.55) 0%,rgba(5,7,10,0) 22%)}
+
+/* brand */
+#brand{position:fixed;top:22px;left:28px;z-index:20;display:flex;gap:14px;align-items:baseline;pointer-events:none}
+#brand b{font-family:var(--sans);font-weight:700;letter-spacing:.22em;font-size:14px}
+#brand span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+#count{position:fixed;top:24px;right:28px;z-index:20;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.12em;pointer-events:none}
+
+/* slides */
+.slide{position:fixed;inset:0;z-index:10;pointer-events:none;visibility:hidden}
+.slide.active{visibility:visible}
+.panel{position:absolute;left:clamp(20px,5vw,72px);top:50%;transform:translateY(-50%);width:min(500px,88vw);pointer-events:auto}
+.panel.wide{width:min(760px,90vw)}
+.panel.center{left:50%;transform:translate(-50%,-50%);text-align:center;width:min(900px,90vw)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(64px,10vw,150px);line-height:.88;letter-spacing:-.01em}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,4.6vw,66px);line-height:.98;letter-spacing:-.005em;margin-bottom:18px}
+h2 em,h1 em{font-style:italic;color:var(--accent)}
+.lead{font-size:clamp(15px,1.25vw,18px);line-height:1.5;color:var(--mute);max-width:46ch}
+.big{font-family:var(--serif);font-size:clamp(76px,9vw,140px);line-height:.9;letter-spacing:-.02em}
+.big small{font-family:var(--sans);font-size:.2em;letter-spacing:.02em;color:var(--mute);margin-left:.25em;font-weight:500}
+.src{font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--faint);margin-top:18px;letter-spacing:.02em}
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--line);border-radius:20px;color:var(--mute);vertical-align:middle}
+.tag.m{border-color:rgba(207,224,160,.5);color:var(--accent)}
+.tag.p{border-color:rgba(124,198,232,.5);color:var(--water)}
+.tag.e{border-color:rgba(230,184,102,.55);color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 28px;margin-top:26px}
+.stat .v{font-family:var(--serif);font-size:clamp(36px,3.6vw,54px);line-height:1}
+.stat .v small{font-family:var(--sans);font-size:.32em;color:var(--mute);margin-left:4px}
+.stat .l{font-size:12.5px;color:var(--mute);margin-top:6px;line-height:1.35}
+.rule{height:1px;background:var(--line);margin:22px 0}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.slide.active .rv{opacity:1;transform:none}
+.slide.active .rv:nth-child(1){transition-delay:.15s}.slide.active .rv:nth-child(2){transition-delay:.3s}
+.slide.active .rv:nth-child(3){transition-delay:.45s}.slide.active .rv:nth-child(4){transition-delay:.6s}
+.slide.active .rv:nth-child(5){transition-delay:.75s}.slide.active .rv:nth-child(6){transition-delay:.9s}
+.slide.active .rv:nth-child(7){transition-delay:1.05s}.slide.active .rv:nth-child(8){transition-delay:1.2s}
+
+/* cover */
+.coords{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--mute);margin-top:22px}
+.cover-line{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,34px);color:var(--ink);margin-top:20px}
+
+/* HUD */
+#hud{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:12;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-align:center;pointer-events:none;opacity:0;transition:opacity .5s}
+#hud.on{opacity:1}
+#hud .stage{font-family:var(--serif);font-size:clamp(28px,3vw,44px);letter-spacing:0;color:var(--ink);margin-bottom:8px;text-transform:none}
+#hud .row{display:flex;gap:22px;justify-content:center}
+#hud .row b{color:var(--accent);font-weight:500}
+.reticle{position:fixed;left:50%;top:50%;width:90px;height:90px;transform:translate(-50%,-50%);z-index:11;pointer-events:none;opacity:0;transition:opacity .5s}
+.reticle.on{opacity:.75}
+
+/* markers */
+.mk{pointer-events:none}
+.mk>div{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink);background:rgba(5,7,10,.72);border:1px solid var(--line);padding:4px 8px;border-radius:3px;white-space:nowrap;backdrop-filter:blur(4px);opacity:0;transform:translateY(6px);transition:opacity .6s,transform .6s}
+.mk.show>div{opacity:1;transform:none}
+.mk>div.side{font-size:12px;color:var(--accent)}
+.mk>div.area{font-family:var(--serif);font-size:30px;letter-spacing:0;padding:4px 12px}
+.mk>div.dot{width:12px;height:12px;padding:0;border-radius:50%;background:var(--water);border:2px solid #fff;box-shadow:0 0 12px var(--water)}
+.mk>div.pin{display:flex;gap:6px;align-items:center}
+.mk>div.pin i{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block}
+.mk>div.poi{width:9px;height:9px;padding:0;border-radius:50%;border:1px solid rgba(0,0,0,.6)}
+.mk>div.band{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+/* charts */
+svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
+.chart{width:100%;height:auto;margin-top:18px;overflow:visible}
+.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 2.2s cubic-bezier(.4,.1,.2,1) .5s}
+.slide.active .draw{stroke-dashoffset:0}
+.bar{transform-origin:bottom;transform:scaleY(0);transition:transform 1s cubic-bezier(.2,.7,.2,1);transform-box:fill-box}
+.slide.active .bar{transform:scaleY(1)}
+.hbar{height:10px;border-radius:2px;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform 1.2s cubic-bezier(.2,.7,.2,1) .5s}
+.slide.active .hbar{transform:scaleX(var(--s,0))}
+.hist{display:grid;grid-template-columns:86px 1fr 64px;gap:10px 12px;align-items:center;margin-top:20px;font-size:12.5px;color:var(--mute)}
+.hist .pct{font-family:var(--mono);color:var(--ink);text-align:right}
+
+/* rings */
+.rings{display:grid;grid-template-columns:1.3fr repeat(3,1fr);gap:0;margin-top:22px;font-size:13px}
+.rings>div{padding:9px 6px;border-bottom:1px solid var(--line)}
+.rings .h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.rings .n{font-family:var(--serif);font-size:30px;line-height:1;text-align:center}
+.rings .c{display:flex;gap:8px;align-items:center}
+.rings .c i{width:9px;height:9px;border-radius:50%}
+.status{font-family:var(--mono);font-size:10.5px;color:var(--gold);margin-top:12px}
+
+/* dashboard */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:26px}
+.dash>div{background:rgba(5,7,10,.82);padding:18px 18px 16px;min-height:128px}
+.dash .v{font-family:var(--serif);font-size:clamp(32px,3.2vw,48px);line-height:1}
+.dash .v small{font-family:var(--sans);font-size:.34em;color:var(--mute);margin-left:3px}
+.dash .l{font-size:12px;color:var(--ink);margin-top:8px;line-height:1.3}
+.dash .w{font-size:11px;color:var(--faint);margin-top:6px;line-height:1.35}
+.dash .tag{margin-top:10px}
+
+/* legend */
+.legend{display:flex;flex-direction:column;gap:10px;margin-top:22px;font-size:13px}
+.legend div{display:flex;gap:12px;align-items:center}
+.legend i{width:26px;height:12px;border-radius:2px;display:inline-block;flex:none}
+.legend b{font-family:var(--mono);font-weight:400;color:var(--mute);margin-left:auto;font-size:12px}
+
+/* gfw */
+#gfwyear{font-family:var(--serif);font-size:clamp(80px,9vw,130px);line-height:.9;color:var(--loss)}
+#gfwload{font-family:var(--mono);font-size:11px;color:var(--gold);margin-top:10px;letter-spacing:.08em}
+.btn{pointer-events:auto;display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid var(--line);padding:9px 14px;border-radius:30px;cursor:pointer;text-decoration:none;margin-top:16px;margin-right:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+#gee{position:fixed;inset:5vh 5vw;z-index:60;background:#000;border:1px solid var(--line);display:flex;flex-direction:column}
+#gee iframe{flex:1;border:0;width:100%}
+#gee .bar2{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--mute)}
+
+/* sources */
+.sources{columns:2;column-gap:40px;font-size:11.5px;line-height:1.55;color:var(--mute);margin-top:18px}
+.sources p{break-inside:avoid;margin-bottom:9px}
+.sources a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.sources b{color:var(--accent);font-weight:500;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:6px}
+
+/* nav */
+#nav{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 22px;pointer-events:none}
+#nav button{pointer-events:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(5,7,10,.55);color:var(--ink);font-size:18px;cursor:pointer;backdrop-filter:blur(6px);transition:border-color .3s,color .3s}
+#nav button:hover{border-color:var(--accent);color:var(--accent)}
+#dots{display:flex;gap:6px;pointer-events:auto}
+#dots i{width:18px;height:3px;background:var(--line);border-radius:2px;cursor:pointer;transition:background .3s,width .3s}
+#dots i.on{background:var(--accent);width:34px}
+#tagline{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:49;font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--faint);pointer-events:none;display:none}
+
+@media (max-aspect-ratio:1/1){
+  .panel,.panel.wide{left:20px;right:20px;width:auto;top:auto;bottom:80px;transform:none;max-height:58vh;overflow:auto}
+  .panel.center{left:20px;right:20px;width:auto;top:50%;bottom:auto;transform:translateY(-50%)}
+  .scrim-left{background:linear-gradient(0deg,rgba(5,7,10,.92) 0%,rgba(5,7,10,.7) 45%,rgba(5,7,10,0) 70%)}
+  .dash{grid-template-columns:repeat(2,1fr)}
+  .dash>div{min-height:0;padding:12px}
+  .sources{columns:1}
+  #hud{bottom:96px}
+}
+@media (max-height:860px) and (min-aspect-ratio:1/1){
+  .dash>div{min-height:0;padding:12px 14px}
+  .dash .w{display:none}
+  h2{font-size:clamp(34px,4vw,56px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .rv,.draw,.bar,.hbar{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="gfw"></div>
+<div id="scrim" class="scrim-none"></div>
+
+<div id="brand"><b>TORUS.</b><span>Arquitectura Diseño Estrategia urbana</span></div>
+<div id="count">01 / 14</div>
+
+<svg class="reticle" id="reticle" viewBox="0 0 90 90" fill="none" stroke="#cfe0a0" stroke-width="1"><path d="M0 14V0h14M76 0h14v14M90 76v14H76M14 90H0V76"/><circle cx="45" cy="45" r="2" fill="#cfe0a0"/></svg>
+<div id="hud"><div class="stage" id="hudStage">Planeta Tierra</div><div class="row"><span>LAT <b id="hudLat">—</b></span><span>LON <b id="hudLon">—</b></span><span>ALT <b id="hudAlt">—</b></span></div></div>
+
+<!-- 0 PORTADA -->
+<section class="slide" data-s="0">
+  <div class="panel">
+    <div class="kicker rv">Fraijanes · Guatemala</div>
+    <h1 class="rv">San<br><em>Bernardo</em></h1>
+    <div class="cover-line rv">Consolidar un frente comercial.</div>
+    <div class="coords rv">14°31′30″ N · 90°27′38″ O · ≈1,930 msnm</div>
+  </div>
+</section>
+
+<!-- 1 FLY-IN -->
+<section class="slide" data-s="1"></section>
+
+<!-- 2 ESCALA -->
+<section class="slide" data-s="2">
+  <div class="panel">
+    <div class="kicker rv">Escala</div>
+    <h2 class="rv">Doce hectáreas<br><em>en la meseta</em></h2>
+    <div class="big rv"><span data-count="12.6" data-dec="1">0</span><small>ha</small></div>
+    <div class="stats rv">
+      <div class="stat"><div class="v"><span data-count="413">0</span><small>m</small></div><div class="l">frente sur, el lado más largo <span class="tag m">medido</span></div></div>
+      <div class="stat"><div class="v"><span data-count="33">0</span><small>m/ha</small></div><div class="l">metros de frente por hectárea <span class="tag m">medido</span></div></div>
+    </div>
+    <div class="src rv">Derrotero del plano “Anexo de Finca San Bernardo”, 1:500, abril 1991: 126,230 m², cierre 0.15 m. Polígono KMZ ajustado: 12.24 ha. Área sujeta a verificación registral.</div>
+  </div>
+</section>
+
+<!-- 3 TOPOGRAFIA -->
+<section class="slide" data-s="3">
+  <div class="panel">
+    <div class="kicker rv">Topografía y pendientes</div>
+    <h2 class="rv">Baja hacia<br><em>el frente sur</em></h2>
+    <div class="big rv"><span id="topoDrop">≈80</span><small>m de desnivel</small></div>
+    <div class="hist rv" id="hist">
+      <div>0–5 %</div><div><div class="hbar" style="--s:0"></div></div><div class="pct">—</div>
+      <div>5–15 %</div><div><div class="hbar" style="--s:0"></div></div><div class="pct">—</div>
+      <div>15–30 %</div><div><div class="hbar" style="--s:0;background:var(--gold)"></div></div><div class="pct">—</div>
+      <div>&gt;30 %</div><div><div class="hbar" style="--s:0;background:var(--loss)"></div></div><div class="pct">—</div>
+    </div>
+    <div class="lead rv" id="topoLine" style="margin-top:16px">La cota más baja está en el frente sur: el comercio puede llegar a nivel de calle y el residencial sube hacia la vista.</div>
+    <div class="src rv" id="topoSrc">Plano 1991: curvas de 1,890 a 1,975 msnm. Histograma calculado en vivo con DEM AWS Terrain Tiles (SRTM ≈30 m) dentro del polígono. <span class="tag m">medido</span> Puntos azules: 4 nacimientos de agua del plano, ubicación aproximada.</div>
+  </div>
+</section>
+
+<!-- 4 CLIMA -->
+<section class="slide" data-s="4">
+  <div class="panel">
+    <div class="kicker rv">Clima</div>
+    <h2 class="rv">Templado,<br><em>seis meses secos</em></h2>
+    <div class="stats rv">
+      <div class="stat"><div class="v">≈<span data-count="17">0</span><small>°C</small></div><div class="l">media anual estimada en el sitio <span class="tag e">estimado</span></div></div>
+      <div class="stat"><div class="v"><span data-count="1610" data-sep="1">0</span><small>mm</small></div><div class="l">lluvia anual, mayo a octubre <span class="tag p">publicado</span></div></div>
+    </div>
+    <svg class="chart rv" id="climate" viewBox="0 0 460 170"></svg>
+    <div class="src rv">Climate-Data.org vía Wikipedia (Fraijanes, 1,585 msnm): media 19.1 °C, 1,610 mm. Sitio ≈1,930 msnm: −0.6 °C/100 m ≈ 17 °C (estimado). Köppen Cwb.</div>
+  </div>
+</section>
+
+<!-- 5 MOVILIDAD -->
+<section class="slide" data-s="5">
+  <div class="panel">
+    <div class="kicker rv">Movilidad</div>
+    <h2 class="rv">A diez kilómetros<br><em>de la ciudad</em></h2>
+    <div class="stats rv">
+      <div class="stat"><div class="v"><span data-count="9.7" data-dec="1">0</span><small>km</small></div><div class="l">Aeropuerto La Aurora</div></div>
+      <div class="stat"><div class="v"><span data-count="9.9" data-dec="1">0</span><small>km</small></div><div class="l">Cayalá, zona 16</div></div>
+      <div class="stat"><div class="v"><span data-count="14.2" data-dec="1">0</span><small>km</small></div><div class="l">Centro Histórico</div></div>
+      <div class="stat"><div class="v"><span data-count="7.1" data-dec="1">0</span><small>km</small></div><div class="l">Cabecera de Fraijanes</div></div>
+    </div>
+    <div class="lead rv" style="margin-top:18px">Acceso desde la Carretera a El Salvador (CA-1), entrada a Fraijanes en el km 18.5. <span id="roadLive"></span></div>
+    <div class="src rv">Distancias en línea recta desde el centroide <span class="tag m">medido</span>. Los tiempos dependen de la hora pico en la CA-1. Red vial en vivo: OpenStreetMap. Km 18.5: PDM-OT Fraijanes (SEGEPLAN).</div>
+  </div>
+</section>
+
+<!-- 6 DEMOGRAFIA -->
+<section class="slide" data-s="6">
+  <div class="panel">
+    <div class="kicker rv">Demografía · Fraijanes</div>
+    <h2 class="rv">La población<br><em>casi se duplicó</em></h2>
+    <div class="big rv">×<span data-count="1.92" data-dec="2">0</span><small>2002 → 2020</small></div>
+    <svg class="chart rv" id="pop" viewBox="0 0 460 180"></svg>
+    <div class="stats rv">
+      <div class="stat"><div class="v"><span data-count="3.7" data-dec="1">0</span><small>% anual</small></div><div class="l">crecimiento compuesto <span class="tag m">calculado</span></div></div>
+      <div class="stat"><div class="v"><span data-count="617">0</span><small>hab/km²</small></div><div class="l">densidad 2020 (58,922 / 95.5 km²)</div></div>
+    </div>
+    <div class="src rv">PDM-OT Fraijanes 2020–2032, SEGEPLAN: 30,701 hab. (2002), 58,922 (proyección 2020), 95.48 km². Línea punteada: 2032 al mismo ritmo, ≈91 mil <span class="tag e">estimado</span>.</div>
+  </div>
+</section>
+
+<!-- 7 AMBIENTE -->
+<section class="slide" data-s="7">
+  <div class="panel">
+    <div class="kicker rv">Ambiente · cobertura forestal</div>
+    <h2 class="rv">El bosque<br><em>se vuelve escaso</em></h2>
+    <div id="gfwyear" class="rv">2001</div>
+    <div id="gfwload" class="rv">Cargando datos satelitales 0 %</div>
+    <div class="lead rv" style="margin-top:14px">En rojo, pérdida de cobertura arbórea por año en el entorno del sitio. El predio conserva bosque y <b style="color:var(--water)">4 nacimientos de agua</b> según el plano: un activo para el proyecto y un límite que debe respetarse.</div>
+    <div class="rv"><button class="btn" id="geeBtn">Timelapse Landsat ↗</button></div>
+    <div class="src rv">Hansen/UMD/Google/USGS/NASA, Tree Cover Loss vía Global Forest Watch, densidad ≥30 %. Visual, no cuantificado. Nacimientos: plano 1991.</div>
+  </div>
+</section>
+
+<!-- 8 PROXIMIDAD -->
+<section class="slide" data-s="8">
+  <div class="panel">
+    <div class="kicker rv">Negocios de proximidad</div>
+    <h2 class="rv">Demanda alrededor,<br><em>oferta por consolidar</em></h2>
+    <div class="rings rv" id="rings">
+      <div class="h">Radio</div><div class="h" style="text-align:center">1 km</div><div class="h" style="text-align:center">3 km</div><div class="h" style="text-align:center">5 km</div>
+      <div class="c"><i style="background:var(--gold)"></i>Comercio y servicios</div><div class="n" data-r="s1">—</div><div class="n" data-r="s3">—</div><div class="n" data-r="s5">—</div>
+      <div class="c"><i style="background:var(--water)"></i>Educación, salud y culto</div><div class="n" data-r="c1">—</div><div class="n" data-r="c3">—</div><div class="n" data-r="c5">—</div>
+    </div>
+    <div class="status rv" id="osmStatus">Consultando OpenStreetMap…</div>
+    <div class="lead rv" style="margin-top:12px">El comercio son <b style="color:var(--gold)">suplementarios</b>, la competencia directa. Colegios, clínicas e iglesias son <b style="color:var(--water)">complementarios</b>: anclas que generan visitas diarias.</div>
+    <div class="src rv">OpenStreetMap vía Overpass API, consulta en vivo. OSM no está completo: los conteos son un mínimo.</div>
+  </div>
+</section>
+
+<!-- 9 MERCADO -->
+<section class="slide" data-s="9">
+  <div class="panel">
+    <div class="kicker rv">Mercado de tierra</div>
+    <h2 class="rv">Referencia en<br><em>la Carretera a El Salvador</em></h2>
+    <div class="big rv">$<span data-count="79">0</span>–<span data-count="90">0</span><small>/m²</small></div>
+    <div class="legend rv" style="gap:12px">
+      <div><span class="tag p">km 18</span> 2.8 ha · desarrollo o bodegas <b>$79/m²</b></div>
+      <div><span class="tag p">km 20.5</span> 0.24 ha · residencial <b>$90/m²</b></div>
+      <div><span class="tag p">km 26</span> 0.70 ha · vivienda u ofibodegas <b>$85/m²</b></div>
+    </div>
+    <div class="lead rv" style="margin-top:16px">Son precios de lista, no de cierre, y de lotes más pequeños. Un predio de 12 ha con pendiente se descuenta; un frente comercial consolidado se paga mejor.</div>
+    <div class="src rv">Encuentra24, anuncios consultados en octubre 2026 (uno publicado en mayo 2024). No constituye avalúo. <span class="tag p">publicado</span></div>
+  </div>
+</section>
+
+<!-- 10 METRICAS -->
+<section class="slide" data-s="10">
+  <div class="panel wide" style="width:min(1060px,92vw)">
+    <div class="kicker rv">Métricas de decisión</div>
+    <h2 class="rv">Lo que dicen <em>los números</em></h2>
+    <div class="dash rv">
+      <div><div class="v">12.6<small>ha</small></div><div class="l">Superficie</div><div class="w">Escala para un frente comercial y un desarrollo residencial atrás</div><span class="tag m">medido</span></div>
+      <div><div class="v">413<small>m</small></div><div class="l">Frente sur</div><div class="w">33 m por hectárea: mucha dirección para el tamaño</div><span class="tag m">medido</span></div>
+      <div><div class="v" id="dashSlope">—</div><div class="l">Área con pendiente &lt;15 %</div><div class="w">Define plataformas y costo de movimiento de tierra</div><span class="tag m">medido · DEM</span></div>
+      <div><div class="v">≈80<small>m</small></div><div class="l">Desnivel N–S</div><div class="w">Comercio abajo, vivienda arriba con vista</div><span class="tag m">plano 1991</span></div>
+      <div><div class="v">9.7<small>km</small></div><div class="l">Al aeropuerto</div><div class="w">Línea recta; misma escala que Cayalá</div><span class="tag m">medido</span></div>
+      <div><div class="v">3.7<small>%/año</small></div><div class="l">Crecimiento de Fraijanes</div><div class="w">2002–2020, ×1.92: la demanda se mueve hacia acá</div><span class="tag p">publicado</span></div>
+      <div><div class="v">$79–90<small>/m²</small></div><div class="l">Tierra en la CA-1</div><div class="w">Precios de lista de lotes pequeños</div><span class="tag p">publicado</span></div>
+      <div><div class="v">4</div><div class="l">Nacimientos de agua</div><div class="w">Activo paisajístico; área de protección por definir</div><span class="tag m">plano 1991</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 CONCEPTO -->
+<section class="slide" data-s="11">
+  <div class="panel">
+    <div class="kicker rv">Concepto · programa por definir</div>
+    <h2 class="rv">Tres franjas,<br><em>un frente compartido</em></h2>
+    <div class="legend rv">
+      <div><i style="background:var(--gold)"></i>Comercio a nivel del frente sur<b id="bC">2.5 ha · 21 %</b></div>
+      <div><i style="background:var(--accent)"></i>Uso mixto: oficinas y vivienda sobre servicios<b id="bM">3.8 ha · 31 %</b></div>
+      <div><i style="background:var(--pine)"></i>Residencial con vista y bosque<b id="bR">5.9 ha · 48 %</b></div>
+      <div><i style="background:transparent;border:1.5px dashed var(--neighbor)"></i>Vecinos al Este<b>esquemático</b></div>
+    </div>
+    <div class="lead rv" style="margin-top:18px">Un solo frente comercial con los vecinos al Este, con acceso, estacionamiento y plaza compartidos, y cada predio desarrollando su propia vivienda atrás.</div>
+    <div class="src rv">Franjas de 65 m y 170 m de fondo desde el frente sur sobre el polígono KMZ <span class="tag e">concepto</span>. Límite del vecino ilustrativo, no levantado.</div>
+  </div>
+</section>
+
+<!-- 12 TESIS -->
+<section class="slide" data-s="12">
+  <div class="panel center">
+    <div class="kicker rv">Tesis</div>
+    <h2 class="rv" style="font-size:clamp(44px,6vw,92px)">Un frente compartido<br><em>vale más</em> que dos sueltos.</h2>
+    <div class="stats rv" style="grid-template-columns:repeat(3,1fr);text-align:left;max-width:860px;margin:30px auto 0">
+      <div class="stat"><div class="v">×1.9</div><div class="l">población en 18 años: la demanda ya llegó</div></div>
+      <div class="stat"><div class="v">413 m</div><div class="l">de frente propio, que se extiende con el vecino</div></div>
+      <div class="stat"><div class="v">80 m</div><div class="l">de desnivel: una plataforma común baja el costo</div></div>
+    </div>
+    <div class="rule rv" style="max-width:300px;margin:34px auto 20px"></div>
+    <div class="rv" style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mute)">PROPIEDAD SAN BERNARDO · ESTRATEGIA Y DISEÑO <b style="color:var(--ink);letter-spacing:.22em">TORUS.</b></div>
+    <div class="rv" style="font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--faint);margin-top:10px">THINK. DESIGN. BUILD.</div>
+  </div>
+</section>
+
+<!-- 13 FUENTES -->
+<section class="slide" data-s="13">
+  <div class="panel wide" style="width:min(980px,92vw)">
+    <div class="kicker rv">Fuentes y créditos</div>
+    <div class="sources rv">
+      <p><b>Terreno</b>Plano “Anexo de Finca San Bernardo”, Fraijanes, 1:500, abril 1991 (derrotero, curvas de nivel, nacimientos). Polígono KMZ “derrotero ajustado”. Mediciones TORUS. en UTM 15N (EPSG:32615).</p>
+      <p><b>Demografía y territorio</b><a href="https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2025/05/0113_PDM_OT_FRAIJANES.pdf" target="_blank" rel="noopener">SEGEPLAN, PDM-OT Fraijanes 2020–2032</a>.</p>
+      <p><b>Clima</b><a href="https://en.wikipedia.org/wiki/Fraijanes" target="_blank" rel="noopener">Wikipedia, Fraijanes (datos de Climate-Data.org)</a>. Ajuste por altitud: estimado TORUS.</p>
+      <p><b>Mercado</b>Encuentra24, anuncios de terrenos en Carretera a El Salvador km <a href="https://www.encuentra24.com/guatemala-en/real-estate-for-sale-lots-land/desarrolladors-land-road-to-the-salvador-km18-plane/25187009" target="_blank" rel="noopener">18</a>, <a href="https://www.encuentra24.com/guatemala-es/bienes-raices-venta-de-propiedades-lotes-y-terrenos/terreno-en-fraijanes-km-20-5-carretera-al-salvador/31709050" target="_blank" rel="noopener">20.5</a> y <a href="https://www.encuentra24.com/guatemala-es/bienes-raices-venta-de-propiedades-lotes-y-terrenos/vendo-terreno-en-carretera-a-el-salvador/32320390" target="_blank" rel="noopener">26</a>. Precios de lista.</p>
+      <p><b>Bosque</b><a href="https://www.globalforestwatch.org/" target="_blank" rel="noopener">Global Forest Watch</a>: Hansen et al., UMD/Google/USGS/NASA, Tree Cover Loss. <a href="https://earthengine.google.com/timelapse/" target="_blank" rel="noopener">Google Earth Engine Timelapse</a>.</p>
+      <p><b>Mapa</b>Esri World Imagery y World Boundaries and Places (Esri, Maxar, Earthstar Geographics). Relieve: AWS Terrain Tiles (Mapzen/SRTM). Datos de proximidad y vialidad: © colaboradores de OpenStreetMap (ODbL). Motor: MapLibre GL JS.</p>
+      <p><b>Leyenda</b><span class="tag m">medido</span> calculado por TORUS. con la geometría o el DEM · <span class="tag p">publicado</span> fuente citada · <span class="tag e">estimado</span> aproximación con método indicado.</p>
+    </div>
+  </div>
+</section>
+
+<div id="gee" hidden><div class="bar2"><span>Google Earth Engine · Timelapse Landsat 1984–hoy</span><span><a class="btn" style="margin:0" id="geeLink" target="_blank" rel="noopener">Abrir en pestaña ↗</a> <button class="btn" style="margin:0" id="geeClose">Cerrar ✕</button></span></div><iframe id="geeFrame" title="Timelapse" loading="lazy"></iframe></div>
+
+<nav id="nav"><button id="prev" aria-label="Anterior">←</button><div id="dots"></div><button id="next" aria-label="Siguiente">→</button></nav>
+
+<script>
+const GEO = {"site":{"type":"Polygon","coordinates":[[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]]},"south":{"type":"LineString","coordinates":[[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]},"bands":{"comercial":{"type":"GeometryCollection","geometries":[{"type":"Polygon","coordinates":[[[-90.462106,14.523902],[-90.462068,14.523908],[-90.46201,14.523912],[-90.461951,14.52391],[-90.461907,14.523907],[-90.461849,14.523907],[-90.461849,14.523907],[-90.461842,14.523909],[-90.461745,14.52393],[-90.46169,14.523939],[-90.461634,14.523944],[-90.461578,14.523943],[-90.461499,14.523938],[-90.461296,14.523952],[-90.461268,14.523953],[-90.461236,14.523954],[-90.461056,14.523981],[-90.460901,14.524011],[-90.46069,14.524066],[-90.460554,14.524111],[-90.460508,14.524124],[-90.460461,14.524134],[-90.459505,14.524294],[-90.459433,14.524302],[-90.459361,14.524301],[-90.458902,14.524269],[-90.458898,14.524269],[-90.458872,14.524267],[-90.458755,14.524264],[-90.458741,14.524268],[-90.458678,14.524277],[-90.458621,14.524279],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462032,14.523283],[-90.462096,14.523438],[-90.462106,14.523902]]]},{"type":"Point","coordinates":[-90.462092,14.523219]}]},"mixto":{"type":"Polygon","coordinates":[[[-90.462031,14.52486],[-90.461944,14.524858],[-90.461812,14.52488],[-90.461666,14.524892],[-90.461519,14.52489],[-90.461503,14.524889],[-90.461364,14.524898],[-90.461329,14.5249],[-90.461225,14.524915],[-90.461121,14.524936],[-90.460973,14.524974],[-90.460869,14.525009],[-90.460748,14.525044],[-90.460625,14.525069],[-90.45967,14.525229],[-90.459481,14.525249],[-90.459292,14.525247],[-90.458945,14.525223],[-90.458426,14.523713],[-90.458621,14.524279],[-90.458678,14.524277],[-90.458741,14.524268],[-90.458755,14.524264],[-90.458872,14.524267],[-90.458898,14.524269],[-90.458902,14.524269],[-90.459361,14.524301],[-90.459433,14.524302],[-90.459505,14.524294],[-90.460461,14.524134],[-90.460508,14.524124],[-90.460554,14.524111],[-90.46069,14.524066],[-90.460901,14.524011],[-90.461056,14.523981],[-90.461236,14.523954],[-90.461268,14.523953],[-90.461296,14.523952],[-90.461499,14.523938],[-90.461578,14.523943],[-90.461634,14.523944],[-90.46169,14.523939],[-90.461745,14.52393],[-90.461842,14.523909],[-90.461849,14.523907],[-90.461849,14.523907],[-90.461907,14.523907],[-90.461951,14.52391],[-90.46201,14.523912],[-90.462068,14.523908],[-90.462106,14.523902],[-90.462104,14.523791],[-90.462127,14.524854],[-90.462031,14.52486]]]},"residencial":{"type":"MultiPolygon","coordinates":[[[[-90.462077,14.523228],[-90.462092,14.523219],[-90.462096,14.523438],[-90.462032,14.523283],[-90.462077,14.523228]]],[[[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458945,14.525223],[-90.459292,14.525247],[-90.459481,14.525249],[-90.45967,14.525229],[-90.460625,14.525069],[-90.460748,14.525044],[-90.460869,14.525009],[-90.460973,14.524974],[-90.461121,14.524936],[-90.461225,14.524915],[-90.461329,14.5249],[-90.461364,14.524898],[-90.461503,14.524889],[-90.461519,14.52489],[-90.461666,14.524892],[-90.461812,14.52488],[-90.461944,14.524858],[-90.462031,14.52486],[-90.462127,14.524854],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717]]]]}},"neighbor":{"type":"Polygon","coordinates":[[[-90.458426,14.523713],[-90.459446,14.526679],[-90.456477,14.526828],[-90.455369,14.523499],[-90.458426,14.523713]]]},"stats":{"area":122367.48544783622,"per":1421.4905110244292,"south":406.5849773635521,"com":25393.485994450424,"mix":38240.477187323704,"res":58733.52451676351},"nacimientos":[[-90.461876,14.524923],[-90.460926,14.524944],[-90.460604,14.524967],[-90.461894,14.523819]],"casas":[[-90.461584,14.525219],[-90.459742,14.523768],[-90.45933,14.526763]],"labels":{"W":[-90.462127,14.524857],"N":[-90.460804,14.526586],"E":[-90.458936,14.525196],"S":[-90.459596,14.523576]},"verts":[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219]]};
+const C = [-90.460546, 14.525039];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const N = 14;
+let cur = 0, token = 0, map = null, mapReady = false;
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+
+/* ---------- helpers ---------- */
+const ring = GEO.site.coordinates[0];
+const lineFC = c => ({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:c}});
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+let PAD={top:0,right:0,bottom:0,left:0};
+function fly(opts, t){ opts={padding:PAD,...opts}; return new Promise(res=>{ if(!map) return res();
+  if(RM){ map.jumpTo(opts); return res(); }
+  const done=()=>{map.off('moveend',done);res();}; map.on('moveend',done); map.flyTo({...opts, essential:true});
+  setTimeout(()=>{map.off('moveend',done);res();}, (opts.duration||3000)+1500); }); }
+function ease(opts){ if(!map) return; if(RM) map.jumpTo(opts); else map.easeTo({...opts, duration:opts.duration||2600, essential:true}); }
+
+/* markers */
+let markers = [];
+function addMk(lnglat, html, cls=''){ if(!map) return; const wrap=document.createElement('div'); wrap.className='mk';
+  const d=document.createElement('div'); d.className=cls; d.innerHTML=html; wrap.appendChild(d);
+  const m=new maplibregl.Marker({element:wrap,anchor:'center'}).setLngLat(lnglat).addTo(map); markers.push(m);
+  setTimeout(()=>wrap.classList.add('show'), 60+markers.length*70); return m; }
+function clearMk(){ markers.forEach(m=>m.remove()); markers=[]; }
+
+/* ---------- map ---------- */
+function initMap(){
+  if(!window.maplibregl){ return; }
+  const esri = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+  map = new maplibregl.Map({
+    container:'map', interactive:false, attributionControl:{compact:false},
+    center:[-90.50,14.60], zoom:10.4, maxPitch:75, fadeDuration:200,
+    canvasContextAttributes:{antialias:true},
+    style:{ version:8,
+      sources:{
+        sat:{type:'raster',tiles:[esri+'World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'},
+        ref:{type:'raster',tiles:[esri+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:13},
+        dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:15,attribution:'Terrain: Mapzen/AWS'},
+        site:{type:'geojson',data:{type:'Feature',properties:{},geometry:GEO.site}},
+        trace:{type:'geojson',lineMetrics:true,data:lineFC(ring)},
+        front:{type:'geojson',lineMetrics:true,data:{type:'Feature',properties:{},geometry:GEO.south}},
+        bands:{type:'geojson',data:{type:'FeatureCollection',features:Object.entries(GEO.bands).map(([k,g])=>({type:'Feature',properties:{k},geometry:g}))}},
+        nb:{type:'geojson',data:{type:'Feature',properties:{},geometry:GEO.neighbor}},
+        shared:{type:'geojson',lineMetrics:true,data:lineFC([])},
+        lines:{type:'geojson',data:{type:'FeatureCollection',features:[]}},
+        roads:{type:'geojson',data:{type:'FeatureCollection',features:[]}},
+        poi:{type:'geojson',data:{type:'FeatureCollection',features:[]}},
+        rings:{type:'geojson',data:{type:'FeatureCollection',features:[]}}
+      },
+      layers:[
+        {id:'sat',type:'raster',source:'sat',paint:{'raster-saturation':-0.15,'raster-contrast':0.05}},
+        {id:'ref',type:'raster',source:'ref',paint:{'raster-opacity':0}},
+        {id:'rings',type:'line',source:'rings',paint:{'line-color':'#f3efe6','line-opacity':0,'line-width':1,'line-dasharray':[3,3]}},
+        {id:'roads',type:'line',source:'roads',paint:{'line-color':'#e6b866','line-opacity':0,'line-width':['match',['get','h'],'trunk',4,'primary',3,2]}},
+        {id:'lines',type:'line',source:'lines',paint:{'line-color':'#cfe0a0','line-opacity':0,'line-width':1.6,'line-dasharray':[2,2]}},
+        {id:'bands',type:'fill',source:'bands',paint:{'fill-color':['match',['get','k'],'comercial','#e6b866','mixto','#cfe0a0','#5f8f6e'],'fill-opacity':0}},
+        {id:'nb-fill',type:'fill',source:'nb',paint:{'fill-color':'#c7a5ff','fill-opacity':0}},
+        {id:'nb-line',type:'line',source:'nb',paint:{'line-color':'#c7a5ff','line-opacity':0,'line-width':2,'line-dasharray':[2,2]}},
+        {id:'site-fill',type:'fill',source:'site',paint:{'fill-color':'#cfe0a0','fill-opacity':0}},
+        {id:'trace-glow',type:'line',source:'trace',layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':10,'line-blur':8,'line-opacity':0,'line-gradient':['step',['line-progress'],'rgba(207,224,160,.9)',0,'rgba(0,0,0,0)']}},
+        {id:'trace',type:'line',source:'trace',layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':2.6,'line-opacity':0,'line-gradient':['step',['line-progress'],'#f3efe6',0,'rgba(0,0,0,0)']}},
+        {id:'front',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':6,'line-color':'#e6b866','line-opacity':0}},
+        {id:'shared',type:'line',source:'shared',layout:{'line-cap':'round'},paint:{'line-width':5,'line-opacity':0,'line-gradient':['step',['line-progress'],'#e6b866',0,'rgba(0,0,0,0)']}},
+        {id:'poi',type:'circle',source:'poi',paint:{'circle-radius':4.5,'circle-color':['match',['get','t'],'s','#e6b866','#7cc6e8'],'circle-stroke-color':'#05070a','circle-stroke-width':1,'circle-opacity':0,'circle-stroke-opacity':0}}
+      ],
+    }
+  });
+  const ready=()=>{ if(mapReady) return; mapReady=true; go(cur, true); };
+  map.on('style.load',()=>setTimeout(ready,50)); map.on('load',ready); setTimeout(()=>{ if(map.isStyleLoaded()) ready(); },6000);
+  map.on('move', hudUpdate); map.on('move', placeGfw);
+  map.on('error', e=>{ /* tiles may fail offline; keep quiet */ });
+}
+
+/* layer state */
+const P = (id,prop,v)=>{ if(map && map.getLayer(id)) map.setPaintProperty(id,prop,v); };
+function layers(st){
+  const s = Object.assign({ref:0,fill:0,trace:0,front:0,bands:0,nb:0,lines:0,roads:0,poi:0,rings:0,shared:0}, st);
+  P('ref','raster-opacity',s.ref); P('site-fill','fill-opacity',s.fill); P('trace','line-opacity',s.trace); P('trace-glow','line-opacity',s.trace*.7);
+  P('front','line-opacity',s.front); P('bands','fill-opacity',s.bands); P('nb-fill','fill-opacity',s.nb*.18); P('nb-line','line-opacity',s.nb);
+  P('lines','line-opacity',s.lines); P('roads','line-opacity',s.roads); P('poi','circle-opacity',s.poi); P('poi','circle-stroke-opacity',s.poi);
+  P('rings','line-opacity',s.rings*.6); P('shared','line-opacity',s.shared);
+}
+function terrain(on){ if(!map) return; try{ map.setTerrain(on?{source:'dem',exaggeration:1.3}:null);}catch(e){} }
+function setTrace(id,p,color,glow){ P(id,'line-gradient',['step',['line-progress'],color,Math.max(0.0001,p),'rgba(0,0,0,0)']); if(glow) P(glow,'line-gradient',['step',['line-progress'],'rgba(207,224,160,.9)',Math.max(0.0001,p),'rgba(0,0,0,0)']); }
+function animTrace(id,color,glow,dur,tk){ return new Promise(res=>{ if(RM){ setTrace(id,1,color,glow); return res(); }
+  const t0=performance.now(); const step=t=>{ if(tk!==token) return res(); const p=Math.min(1,(t-t0)/dur); setTrace(id,1-Math.pow(1-p,3),color,glow); if(p<1) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); }); }
+let traced=false;
+async function drawBoundary(tk, fast){ layers({fill:.16,trace:1}); if(traced||fast){ setTrace('trace',1,'#f3efe6','trace-glow'); return; } setTrace('trace',0,'#f3efe6','trace-glow'); await animTrace('trace','#f3efe6','trace-glow',2600,tk); traced = tk===token; }
+
+/* HUD */
+function hudUpdate(){ if(!map || cur!==1) return; const c=map.getCenter(), z=map.getZoom();
+  const mpp = 78271.517*Math.cos(c.lat*Math.PI/180)/Math.pow(2,z); const alt = mpp*innerHeight*1.5;
+  $('#hudLat').textContent = Math.abs(c.lat).toFixed(4)+'° '+(c.lat>=0?'N':'S');
+  $('#hudLon').textContent = Math.abs(c.lng).toFixed(4)+'° '+(c.lng<0?'O':'E');
+  $('#hudAlt').textContent = alt>10000 ? Math.round(alt/1000).toLocaleString('es-GT')+' km' : Math.round(alt).toLocaleString('es-GT')+' m'; }
+
+/* counters */
+function counters(el){ el.querySelectorAll('[data-count]').forEach(n=>{ const to=+n.dataset.count, dec=+(n.dataset.dec||0);
+  const fmt=v=> n.dataset.sep? Math.round(v).toLocaleString('en-US') : v.toFixed(dec);
+  if(RM){ n.textContent=fmt(to); return; } const t0=performance.now(), d=1600;
+  const st=t=>{ const p=Math.min(1,(t-t0)/d); n.textContent=fmt(to*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(st); }; setTimeout(()=>requestAnimationFrame(st),350); }); }
+
+/* ---------- charts ---------- */
+(function climate(){ const T=[17.7,18.3,19.5,20.3,20.3,19.7,19.6,19.7,19.4,19.1,18.2,17.7], R=[5,3,10,30,203,321,245,247,316,180,37,13];
+  const m='EFMAMJJASOND'.split(''); let s=''; const W=460,H=170,b=140,bw=26;
+  R.forEach((r,i)=>{ const h=r/330*110, x=20+i*36; s+=`<rect class="bar" style="transition-delay:${.4+i*.05}s" x="${x}" y="${b-h}" width="${bw}" height="${h}" fill="${r>100?'#7cc6e8':'rgba(124,198,232,.35)'}" rx="1"/><text x="${x+bw/2}" y="${b+16}" text-anchor="middle">${m[i]}</text>`; });
+  const pts=T.map((t,i)=>[20+i*36+bw/2, b-((t-15)/7)*110]); const d='M'+pts.map(p=>p.join(',')).join('L');
+  s+=`<path class="draw" style="--len:500" d="${d}" stroke="#e6b866" stroke-width="2" fill="none"/>`;
+  s+=`<text x="${W-4}" y="14" text-anchor="end" style="fill:#e6b866">— temperatura media °C</text><text x="${W-4}" y="28" text-anchor="end" style="fill:#7cc6e8">▮ lluvia mm</text>`;
+  $('#climate').innerHTML=s; })();
+(function pop(){ const W=460,H=180, x0=30,x1=430, y0=150,y1=20; const X=y=>x0+(y-2002)/(2032-2002)*(x1-x0), Y=v=>y0-(v/95000)*(y0-y1);
+  const real=[[2002,30701],[2020,58922]]; const r=Math.pow(58922/30701,1/18); let curve=[]; for(let y=2002;y<=2020;y++) curve.push([X(y),Y(30701*Math.pow(r,y-2002))]);
+  let proj=[]; for(let y=2020;y<=2032;y++) proj.push([X(y),Y(58922*Math.pow(r,y-2020))]);
+  let s=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="rgba(243,239,230,.16)"/>`;
+  s+=`<path class="draw" style="--len:600" d="M${curve.map(p=>p.join(',')).join('L')}" stroke="#cfe0a0" stroke-width="2.5" fill="none"/>`;
+  s+=`<path d="M${proj.map(p=>p.join(',')).join('L')}" stroke="#e6b866" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity=".8"/>`;
+  real.forEach(([y,v])=>{ s+=`<circle cx="${X(y)}" cy="${Y(v)}" r="4" fill="#cfe0a0"/><text x="${X(y)}" y="${Y(v)-10}" text-anchor="middle" style="fill:#f3efe6">${v.toLocaleString('en-US')}</text><text x="${X(y)}" y="${y0+16}" text-anchor="middle">${y}</text>`; });
+  s+=`<text x="${X(2032)}" y="${Y(58922*Math.pow(r,12))-10}" text-anchor="end" style="fill:#e6b866">≈91 mil</text><text x="${X(2032)}" y="${y0+16}" text-anchor="end">2032</text>`;
+  $('#pop').innerHTML=s; })();
+
+/* ---------- DEM slope analysis (live) ---------- */
+let slope=null;
+function pip(x,y,poly){ let ins=false; for(let i=0,j=poly.length-1;i<poly.length;j=i++){ const [xi,yi]=poly[i],[xj,yj]=poly[j]; if(((yi>y)!=(yj>y)) && (x<(xj-xi)*(y-yi)/(yj-yi)+xi)) ins=!ins; } return ins; }
+async function demAnalysis(){
+  const z=15, n=2**z; const lon2x=l=>(l+180)/360*n, lat2y=la=>{const r=la*Math.PI/180; return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;};
+  const xs=ring.map(p=>lon2x(p[0])), ys=ring.map(p=>lat2y(p[1]));
+  const tx0=Math.floor(Math.min(...xs)), tx1=Math.floor(Math.max(...xs)), ty0=Math.floor(Math.min(...ys)), ty1=Math.floor(Math.max(...ys));
+  const W=(tx1-tx0+1)*256, H=(ty1-ty0+1)*256; const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const cx=cv.getContext('2d',{willReadFrequently:true});
+  const load=(x,y)=>new Promise((res,rej)=>{ const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>{cx.drawImage(im,(x-tx0)*256,(y-ty0)*256);res();}; im.onerror=rej; im.src=`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`; });
+  const jobs=[]; for(let x=tx0;x<=tx1;x++) for(let y=ty0;y<=ty1;y++) jobs.push(load(x,y)); await Promise.all(jobs);
+  const d=cx.getImageData(0,0,W,H).data; const E=(i,j)=>{const k=(j*W+i)*4; return d[k]*256+d[k+1]+d[k+2]/256-32768;};
+  const poly=ring.map(p=>[(lon2x(p[0])-tx0)*256,(lat2y(p[1])-ty0)*256]);
+  const px=40075016.686*Math.cos(C[1]*Math.PI/180)/n/256;
+  let cls=[0,0,0,0], tot=0, mn=1e9, mx=-1e9, sum=0;
+  for(let j=1;j<H-1;j++) for(let i=1;i<W-1;i++){ if(!pip(i+.5,j+.5,poly)) continue;
+    const e=E(i,j); mn=Math.min(mn,e); mx=Math.max(mx,e);
+    const dzdx=(E(i+1,j)-E(i-1,j))/(2*px), dzdy=(E(i,j+1)-E(i,j-1))/(2*px); const s=Math.hypot(dzdx,dzdy)*100;
+    sum+=s; tot++; cls[s<5?0:s<15?1:s<30?2:3]++; }
+  if(!tot) throw 0; slope={cls:cls.map(c=>c/tot), mean:sum/tot, mn, mx};
+  return slope;
+}
+function showSlope(){ const bars=$$('#hist .hbar'), pc=$$('#hist .pct');
+  if(slope){ slope.cls.forEach((c,i)=>{ bars[i].style.setProperty('--s',c.toFixed(3)); pc[i].textContent=Math.round(c*100)+' %'; });
+    const flat=slope.cls[0]+slope.cls[1]; $('#dashSlope').innerHTML=Math.round(flat*100)+'<small>%</small>';
+    $('#topoDrop').textContent='≈'+Math.round(slope.mx-slope.mn);
+    $('#topoSrc').innerHTML=`DEM en vivo: ${Math.round(slope.mn).toLocaleString('en-US')}–${Math.round(slope.mx).toLocaleString('en-US')} msnm, pendiente media ${slope.mean.toFixed(0)} %, ≈${(flat*12.6).toFixed(1)} ha bajo 15 %. Plano 1991: curvas de 1,890 a 1,975. <span class="tag m">medido</span> AWS Terrain Tiles (SRTM ≈30 m). Puntos azules: 4 nacimientos de agua del plano, ubicación aproximada.`;
+  } else { pc.forEach(p=>p.textContent='—'); $('#dashSlope').innerHTML='≈20<small>% media</small>'; }
+}
+demAnalysis().then(showSlope).catch(()=>{ showSlope(); const s=$('#topoSrc'); s.innerHTML='Plano 1991: curvas de 1,890 a 1,975 msnm, pendiente media ≈20 % (80 m en ≈390 m). No se pudo cargar el DEM en vivo. Puntos azules: 4 nacimientos de agua, ubicación aproximada.'; });
+
+/* ---------- OSM live (roads + POI) ---------- */
+let osmDone=false, osmPOI=[];
+const hav=(a,b)=>{const R=6371,toR=x=>x*Math.PI/180;const dLa=toR(b[1]-a[1]),dLo=toR(b[0]-a[0]);const h=Math.sin(dLa/2)**2+Math.cos(toR(a[1]))*Math.cos(toR(b[1]))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
+async function overpass(q){ const eps=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+  for(const u of eps){ try{ const r=await fetch(u,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'}}); if(r.ok) return await r.json(); }catch(e){} } throw new Error('osm'); }
+function circle(c,km){ const pts=[]; for(let i=0;i<=72;i++){ const a=i/72*2*Math.PI; pts.push([c[0]+km/(111.32*Math.cos(c[1]*Math.PI/180))*Math.cos(a), c[1]+km/110.57*Math.sin(a)]); } return pts; }
+async function loadOSM(){
+  const [lo,la]=[C[0],C[1]];
+  try{
+    const q1=`[out:json][timeout:25];way["highway"~"^(trunk|primary|secondary)$"](around:4000,${la},${lo});out geom tags;`;
+    const r1=await overpass(q1);
+    const feats=r1.elements.filter(e=>e.geometry).map(e=>({type:'Feature',properties:{h:e.tags.highway,ref:e.tags.ref||'',name:e.tags.name||''},geometry:{type:'LineString',coordinates:e.geometry.map(g=>[g.lon,g.lat])}}));
+    map && map.getSource('roads') && map.getSource('roads').setData({type:'FeatureCollection',features:feats});
+    let best=1e9; feats.filter(f=>f.properties.h==='trunk'||/CA-?1/.test(f.properties.ref)).forEach(f=>f.geometry.coordinates.forEach(p=>{best=Math.min(best,hav(C,p));}));
+    if(best<1e8) $('#roadLive').innerHTML=`Troncal más cercana en OSM: <b style="color:var(--gold)">${best.toFixed(1)} km</b> en línea recta <span class="tag m">en vivo</span>.`;
+  }catch(e){}
+  try{
+    const sup='supermarket|mall|department_store|convenience|hardware|doityourself|bakery|butcher|furniture|car_repair';
+    const am='restaurant|cafe|fast_food|fuel|bank|pharmacy|marketplace';
+    const cmp='school|kindergarten|college|university|hospital|clinic|doctors|place_of_worship';
+    const q=`[out:json][timeout:25];(nwr["shop"~"^(${sup})$"](around:5000,${la},${lo});nwr["amenity"~"^(${am}|${cmp})$"](around:5000,${la},${lo}););out center tags;`;
+    const r=await overpass(q); const cs=new RegExp('^('+cmp+')$');
+    osmPOI=r.elements.map(e=>{ const p=e.lat!=null?[e.lon,e.lat]:(e.center?[e.center.lon,e.center.lat]:null); if(!p) return null;
+      const t=(e.tags.amenity&&cs.test(e.tags.amenity))?'c':'s'; return {p,t,d:hav(C,p)}; }).filter(Boolean);
+    const cnt={}; ['s','c'].forEach(t=>[1,3,5].forEach(k=>cnt[t+k]=osmPOI.filter(o=>o.t===t&&o.d<=k).length));
+    $$('#rings .n').forEach(n=>n.textContent=cnt[n.dataset.r]);
+    map && map.getSource('poi') && map.getSource('poi').setData({type:'FeatureCollection',features:osmPOI.map(o=>({type:'Feature',properties:{t:o.t},geometry:{type:'Point',coordinates:o.p}}))});
+    $('#osmStatus').textContent=`${osmPOI.length} puntos en OpenStreetMap a 5 km · consulta en vivo`;
+  }catch(e){ $('#osmStatus').textContent='OpenStreetMap no respondió. Recarga la lámina con conexión a internet.'; }
+  osmDone=true;
+}
+
+/* ---------- GFW overlay (img tiles, Leaflet-style) ---------- */
+const GFW={years:[], z:13, tiles:[], ready:false, loading:null};
+for(let y=2001;y<=2025;y++) GFW.years.push(y);
+function gfwURL(z,x,y,yr){ return `https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/${z}/${x}/${y}.png?start_year=${yr}&end_year=${yr}&tree_cover_density_threshold=30&render_type=true_color`; }
+function tileBounds(z,x,y){ const n=2**z; const lon=x/n*360-180; const lat=Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI; return [lon,lat]; }
+function buildGfw(){ if(GFW.loading) return GFW.loading;
+  const box=$('#gfw'); box.innerHTML=''; const z=GFW.z, n=2**z;
+  const cx=(C[0]+180)/360*n, r=C[1]*Math.PI/180, cy=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;
+  const span = innerWidth>1200?3:2; GFW.tiles=[];
+  for(let x=Math.floor(cx)-span;x<=Math.floor(cx)+span;x++) for(let y=Math.floor(cy)-2;y<=Math.floor(cy)+2;y++) GFW.tiles.push([x,y]);
+  let total=GFW.years.length*GFW.tiles.length, done=0;
+  const upd=()=>{ $('#gfwload').textContent = done<total? `Cargando datos satelitales ${Math.round(done/total*100)} %` : ''; };
+  const jobs=[];
+  GFW.years.forEach(yr=>{ const L=document.createElement('div'); L.className='yr'; L.dataset.y=yr; box.appendChild(L);
+    GFW.tiles.forEach(([x,y])=>{ const im=document.createElement('img'); im.dataset.x=x; im.dataset.y=y; im.alt=''; L.appendChild(im);
+      jobs.push(new Promise(res=>{ let tries=0; const go=()=>{ im.onload=()=>{done++;upd();res();}; im.onerror=()=>{ if(++tries<=2) setTimeout(()=>{im.src=gfwURL(z,x,y,yr)+'&r='+tries;},400*tries); else {im.style.display='none';done++;upd();res();} }; im.src=gfwURL(z,x,y,yr); }; go(); })); }); });
+  upd(); placeGfw();
+  GFW.loading = Promise.race([Promise.all(jobs), sleep(20000)]).then(()=>{ GFW.ready=true; $('#gfwload').textContent=''; });
+  return GFW.loading; }
+function placeGfw(){ if(!map || cur!==7) return; const z=GFW.z;
+  $$('#gfw img').forEach(im=>{ const x=+im.dataset.x, y=+im.dataset.y; const a=map.project(tileBounds(z,x,y)), b=map.project(tileBounds(z,x+1,y+1));
+    im.style.left=a.x+'px'; im.style.top=a.y+'px'; im.style.width=(b.x-a.x+.5)+'px'; im.style.height=(b.y-a.y+.5)+'px'; }); }
+async function playGfw(tk){ await buildGfw(); if(tk!==token) return; placeGfw();
+  const Ls=$$('#gfw .yr'); for(let i=0;i<Ls.length;i++){ if(tk!==token) return; Ls.forEach((L,j)=>{ L.classList.toggle('on',j<i); L.classList.toggle('cur',j===i); });
+    $('#gfwyear').textContent=GFW.years[i]; await sleep(RM?60:520); }
+  Ls.forEach(L=>{L.classList.remove('cur');L.classList.add('on');}); }
+function hideGfw(){ $$('#gfw .yr').forEach(L=>L.classList.remove('on','cur')); }
+
+/* GEE overlay */
+const geeURL=`https://earthengine.google.com/timelapse/#v=${C[1].toFixed(5)},${C[0].toFixed(5)},13,latLng&t=0.0`;
+$('#geeLink').href=geeURL;
+$('#geeBtn').onclick=()=>{ $('#geeFrame').src=geeURL; $('#gee').hidden=false; };
+$('#geeClose').onclick=()=>{ $('#gee').hidden=true; $('#geeFrame').src='about:blank'; };
+
+/* ---------- slides ---------- */
+let spin=null;
+function startSpin(){ stopSpin(); if(RM||!map) return; const f=()=>{ if(!map) return; const c=map.getCenter(); map.setCenter([c.lng+0.06,c.lat]); spin=requestAnimationFrame(f); }; spin=requestAnimationFrame(f); }
+function stopSpin(){ if(spin) cancelAnimationFrame(spin); spin=null; }
+let orbit=null;
+function startOrbit(){ stopOrbit(); if(RM||!map) return; const f=()=>{ map.setBearing(map.getBearing()+0.04); orbit=requestAnimationFrame(f); }; orbit=requestAnimationFrame(f); }
+function stopOrbit(){ if(orbit) cancelAnimationFrame(orbit); orbit=null; }
+
+const L = GEO.labels;
+const anchors=[['Aeropuerto La Aurora',[-90.5275,14.5833]],['Cayalá',[-90.4886,14.6106]],['Centro Histórico',[-90.5133,14.6425]],['Fraijanes',[-90.4333,14.4667]]];
+function sideLabels(){ addMk(L.S,'Frente sur · 413 m','side'); addMk(L.N,'Norte · 311 m','side'); addMk(L.E,'Este · 352 m','side'); addMk(L.W,'Oeste · 368 m','side'); }
+
+const S = [
+  /*0*/ async tk=>{ scrim('left'); terrain(true); layers({ref:.7,fill:.6,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow'); await fly({center:[-90.49,14.575],zoom:10.9,pitch:40,bearing:-10,duration:2500}); if(tk!==token) return; addMk(C,'San Bernardo','side'); anchors.slice(0,3).forEach(([n,p])=>addMk(p,`<i></i>${n}`,'pin')); startOrbit(); },
+  /*1*/ async tk=>{ scrim('none'); terrain(false); layers({ref:.85}); $('#hud').classList.add('on'); $('#reticle').classList.add('on');
+        const st=[['Fraijanes · Carretera a El Salvador',{center:[-90.472,14.538],zoom:13,pitch:35,bearing:0}],['San Bernardo',{center:C,zoom:16.2,pitch:48,bearing:-12}]];
+        $('#hudStage').textContent='Valle de Guatemala'; layers({ref:.85}); setTrace('trace',0,'#f3efe6','trace-glow'); traced=false; await fly({center:[-90.50,14.59],zoom:10.6,pitch:0,bearing:0,duration:1800}); await sleep(700);
+        for(const [name,cam] of st){ if(tk!==token) return; $('#hudStage').textContent=name; if(name==='San Bernardo'){ layers({ref:0}); $('#reticle').classList.remove('on'); }
+          await fly({...cam,duration:3800,curve:1.2}); await sleep(name==='San Bernardo'?0:600); }
+        if(tk!==token) return; await drawBoundary(tk); },
+  /*2*/ async tk=>{ scrim('left'); terrain(false); layers({fill:.16,trace:1,front:.9}); setTrace('trace',1,'#f3efe6','trace-glow');
+        await fly({center:C,zoom:16.5,pitch:0,bearing:0,duration:2400}); if(tk!==token) return; sideLabels(); addMk([C[0],C[1]+0.0003],'12.6 ha','area'); },
+  /*3*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.1,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
+        await fly({center:[C[0],C[1]-0.0004],zoom:16.3,pitch:64,bearing:-20,duration:2800}); if(tk!==token) return;
+        GEO.nacimientos.forEach(p=>addMk(p,'','dot')); addMk([L.S[0],L.S[1]-0.0002],'≈1,895 msnm','side'); addMk([L.N[0],L.N[1]+0.0002],'≈1,970 msnm','side'); },
+  /*4*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.1,trace:.8}); await fly({center:C,zoom:14,pitch:58,bearing:25,duration:3000}); if(tk===token) startOrbit(); },
+  /*5*/ async tk=>{ scrim('left'); terrain(false); layers({fill:.5,trace:1,lines:.9,roads:.9,ref:.55});
+        const fc={type:'FeatureCollection',features:anchors.map(([n,p])=>lineFC([C,p]))}; map&&map.getSource('lines').setData(fc);
+        await fly({center:[-90.487,14.56],zoom:11.3,pitch:0,bearing:0,duration:2800}); if(tk!==token) return;
+        anchors.forEach(([n,p])=>addMk(p,`<i></i>${n} · ${hav(C,p).toFixed(1)} km`,'pin')); addMk(C,'San Bernardo','side'); },
+  /*6*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.4,trace:1,ref:.4}); await fly({center:[-90.45,14.50],zoom:12.2,pitch:45,bearing:-25,duration:3000}); if(tk===token) startOrbit(); },
+  /*7*/ async tk=>{ scrim('left'); terrain(false); layers({fill:0,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
+        await fly({center:C,zoom:13.3,pitch:0,bearing:0,duration:2600}); if(tk!==token) return; addMk(C,'San Bernardo','side'); playGfw(tk); },
+  /*8*/ async tk=>{ scrim('left'); terrain(false); layers({fill:.5,trace:1,poi:1,rings:1});
+        map&&map.getSource('rings').setData({type:'FeatureCollection',features:[1,3,5].map(k=>lineFC(circle(C,k)))});
+        if(!osmDone) loadOSM();
+        await fly({center:C,zoom:12.0,pitch:0,bearing:0,duration:2600}); if(tk!==token) return;
+        [1,3,5].forEach(k=>addMk([C[0],C[1]+k/110.57],k+' km','side')); },
+  /*9*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.15,trace:1,front:.9}); await fly({center:C,zoom:14.6,pitch:55,bearing:-35,duration:2800}); if(tk===token) startOrbit(); },
+  /*10*/async tk=>{ scrim('full'); terrain(true); layers({fill:.15,trace:1}); await fly({center:C,zoom:15.4,pitch:60,bearing:30,duration:2600}); if(tk===token) startOrbit(); },
+  /*11*/async tk=>{ scrim('left'); terrain(false); layers({bands:.55,nb:1,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
+        const s=GEO.south.coordinates, e=GEO.neighbor.coordinates[0]; const shared=[e[3], ...s];
+        map&&map.getSource('shared').setData(lineFC(shared)); setTrace('shared',0,'#e6b866');
+        await fly({center:[C[0]+0.0012,C[1]],zoom:15.8,pitch:30,bearing:0,duration:2600}); if(tk!==token) return;
+        layers({bands:.55,nb:1,trace:1,shared:1}); animTrace('shared','#e6b866',null,2200,tk);
+        const bc=k=>{ const c=GEO.bands[k].type==='Polygon'?GEO.bands[k].coordinates[0]:GEO.bands[k].coordinates[0][0]; const x=c.reduce((a,p)=>a+p[0],0)/c.length, y=c.reduce((a,p)=>a+p[1],0)/c.length; return [x,y]; };
+        addMk(bc('comercial'),'<span style="color:var(--gold)">Comercio</span>','band'); addMk(bc('mixto'),'<span style="color:var(--accent)">Uso mixto</span>','band'); addMk(bc('residencial'),'<span style="color:#9fd3ad">Residencial</span>','band');
+        const ec=e.slice(0,4); addMk([ec.reduce((a,p)=>a+p[0],0)/4, ec.reduce((a,p)=>a+p[1],0)/4],'<span style="color:var(--neighbor)">Vecinos al Este</span>','band');
+        addMk([s[Math.floor(s.length/2)][0], s[Math.floor(s.length/2)][1]-0.00035],'Frente comercial compartido →','side'); },
+  /*12*/async tk=>{ scrim('full'); terrain(true); layers({fill:.15,trace:1}); await fly({center:C,zoom:14.6,pitch:65,bearing:-40,duration:3000}); if(tk===token) startOrbit(); },
+  /*13*/async tk=>{ scrim('full'); terrain(false); layers({ref:.5,fill:.5,trace:1}); await fly({center:[-90.49,14.575],zoom:11,pitch:0,bearing:0,duration:3000}); }
+];
+function scrim(k){ $('#scrim').className='scrim-'+k; const land=innerWidth>=innerHeight;
+  PAD = k==='left' ? (land?{top:40,right:40,bottom:70,left:Math.min(620,innerWidth*0.44)}:{top:60,right:20,bottom:innerHeight*0.55,left:20}) : {top:0,right:0,bottom:0,left:0}; }
+
+function go(i, force){
+  i=Math.max(0,Math.min(N-1,i)); if(i===cur && !force) return; cur=i; token++; const tk=token;
+  $$('.slide').forEach(s=>s.classList.toggle('active', +s.dataset.s===i));
+  $$('#dots i').forEach((d,j)=>d.classList.toggle('on',j===i));
+  $('#count').textContent=String(i+1).padStart(2,'0')+' / '+N;
+  history.replaceState(null,'','#s'+(i+1));
+  $('#hud').classList.remove('on'); $('#reticle').classList.remove('on');
+  stopSpin(); stopOrbit(); clearMk(); if(i!==7) hideGfw();
+  const sec=$(`.slide[data-s="${i}"]`); counters(sec);
+  if(i===3) showSlope();
+  if(map && mapReady){ map.stop(); S[i](tk).catch(()=>{}); }
+}
+
+/* nav */
+const dots=$('#dots'); for(let i=0;i<N;i++){ const d=document.createElement('i'); d.onclick=()=>go(i); dots.appendChild(d); }
+$('#prev').onclick=()=>go(cur-1); $('#next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{ if(!$('#gee').hidden && e.key==='Escape'){ $('#geeClose').click(); return; }
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); go(cur+1); }
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); go(cur-1); }
+  else if(e.key==='Home') go(0); else if(e.key==='End') go(N-1);
+  else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); } });
+let tx=null,ty=null; addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+addEventListener('touchend',e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty; if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)) go(cur+(dx<0?1:-1)); tx=null; },{passive:true});
+addEventListener('resize',()=>{ placeGfw(); });
+
+const h=location.hash.match(/^#s(\d+)/); cur = h? Math.max(0,Math.min(N-1,+h[1]-1)) : 0;
+go(cur,true);
+try{ initMap(); }catch(e){ console.warn('map', e); }
+</script>
+</body>
+</html>
