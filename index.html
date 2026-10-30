@@ -21,7 +21,7 @@
 html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
 #map{position:fixed;inset:0;z-index:1;background:transparent}
 .maplibregl-canvas{outline:none}
-.maplibregl-ctrl-bottom-right{bottom:64px!important}
+.maplibregl-ctrl-bottom-right{bottom:74px!important}
 .maplibregl-ctrl-attrib{background:rgba(0,0,0,.45)!important;color:var(--faint)!important;font-size:10px!important}
 .maplibregl-ctrl-attrib a{color:var(--mute)!important}
 #gfw{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
@@ -150,11 +150,15 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
 .sources b{color:var(--accent);font-weight:500;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:6px}
 
 /* nav */
-#nav{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 22px;pointer-events:none}
-#nav button{pointer-events:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(5,7,10,.55);color:var(--ink);font-size:18px;cursor:pointer;backdrop-filter:blur(6px);transition:border-color .3s,color .3s}
+#nav{position:fixed;left:0;right:0;bottom:0;height:72px;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 22px;pointer-events:none}
+#nav button{pointer-events:auto;width:48px;height:48px;border-radius:50%;border:1px solid rgba(243,239,230,.45);background:rgba(5,7,10,.78);color:var(--ink);font-size:20px;cursor:pointer;backdrop-filter:blur(6px);transition:border-color .3s,color .3s,opacity .3s}
+#nav button:disabled{opacity:.3;cursor:default}
+#navc{pointer-events:auto;display:flex;align-items:center;gap:12px;background:rgba(5,7,10,.72);border:1px solid var(--line);border-radius:40px;padding:5px;backdrop-filter:blur(6px)}
+#navc #pg{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--ink);min-width:64px;text-align:center}
+#navc #pg b{color:var(--accent);font-weight:500}
 #nav button:hover{border-color:var(--accent);color:var(--accent)}
 #dots{display:flex;gap:6px;pointer-events:auto}
-#dots i{width:18px;height:3px;background:var(--line);border-radius:2px;cursor:pointer;transition:background .3s,width .3s}
+#dots i{width:18px;height:3px;background:rgba(243,239,230,.3);border-radius:2px;cursor:pointer;transition:background .3s,width .3s}
 #dots i.on{background:var(--accent);width:34px}
 #tagline{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:49;font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--faint);pointer-events:none;display:none}
 
@@ -206,12 +210,14 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
   <div class="panel">
     <div class="kicker rv">Escala</div>
     <h2 class="rv">Doce hectáreas<br><em>en la meseta</em></h2>
-    <div class="big rv"><span data-count="12.6" data-dec="1">0</span><small>ha</small></div>
+    <div class="big rv"><span data-count="12.6" data-dec="1">0</span><small>ha · 126,230 m²</small></div>
     <div class="stats rv">
-      <div class="stat"><div class="v"><span data-count="413">0</span><small>m</small></div><div class="l">frente sur, el lado más largo <span class="tag m">medido</span></div></div>
-      <div class="stat"><div class="v"><span data-count="33">0</span><small>m/ha</small></div><div class="l">metros de frente por hectárea <span class="tag m">medido</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--loss)"><span data-count="3.71" data-dec="2">0</span><small>ha</small></div><div class="l">≈37,150 m² · segmento vecino a consolidar <span class="tag e">estimado</span></div></div>
+      <div class="stat"><div class="v"><span data-count="16.0" data-dec="1">0</span><small>ha</small></div><div class="l">≈159,500 m² · conjunto consolidado <span class="tag e">estimado</span></div></div>
+      <div class="stat"><div class="v" style="color:var(--gold)"><span data-count="518">0</span><small>m</small></div><div class="l">frente a la vía al consolidar <span class="tag e">estimado</span></div></div>
+      <div class="stat"><div class="v"><span data-count="413">0</span><small>m</small></div><div class="l">lindero sur de San Bernardo, colinda con el vecino <span class="tag m">medido</span></div></div>
     </div>
-    <div class="src rv">Derrotero del plano “Anexo de Finca San Bernardo”, 1:500, abril 1991: 126,230 m², cierre 0.15 m. Polígono KMZ ajustado: 12.24 ha. Área sujeta a verificación registral.</div>
+    <div class="src rv">San Bernardo: derrotero del plano “Anexo de Finca San Bernardo”, 1:500, abril 1991 (126,230 m², cierre 0.15 m); polígono KMZ ajustado 12.24 ha (122,367 m²). Segmento vecino: trazo de TORUS. sobre imagen satelital, sin levantamiento. Áreas sujetas a verificación registral.</div>
   </div>
 </section>
 
@@ -328,14 +334,14 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
     <div class="kicker rv">Métricas de decisión</div>
     <h2 class="rv">Lo que dicen <em>los números</em></h2>
     <div class="dash rv">
-      <div><div class="v">12.6<small>ha</small></div><div class="l">Superficie</div><div class="w">Escala para un frente comercial y un desarrollo residencial atrás</div><span class="tag m">medido</span></div>
-      <div><div class="v">413<small>m</small></div><div class="l">Frente sur</div><div class="w">33 m por hectárea: mucha dirección para el tamaño</div><span class="tag m">medido</span></div>
-      <div><div class="v" id="dashSlope">—</div><div class="l">Área con pendiente &lt;15 %</div><div class="w">Define plataformas y costo de movimiento de tierra</div><span class="tag m">medido · DEM</span></div>
-      <div><div class="v">≈80<small>m</small></div><div class="l">Desnivel N–S</div><div class="w">Comercio abajo, vivienda arriba con vista</div><span class="tag m">plano 1991</span></div>
+      <div><div class="v">12.6<small>ha</small></div><div class="l">San Bernardo · 126,230 m²</div><div class="w">Fondo y vista para el desarrollo detrás del frente</div><span class="tag m">medido</span></div>
+      <div><div class="v" style="color:var(--loss)">3.71<small>ha</small></div><div class="l">Segmento vecino · ≈37,150 m²</div><div class="w">La franja que da a la vía: sin ella no hay frente</div><span class="tag e">estimado</span></div>
+      <div><div class="v">16.0<small>ha</small></div><div class="l">Consolidado · ≈159,500 m²</div><div class="w">Escala para ancla comercial más uso mixto</div><span class="tag e">estimado</span></div>
+      <div><div class="v" style="color:var(--gold)">518<small>m</small></div><div class="l">Frente a la vía consolidado</div><div class="w">≈32 m de frente por hectárea consolidada</div><span class="tag e">estimado</span></div>
+      <div><div class="v" id="dashSlope">—</div><div class="l">San Bernardo con pendiente &lt;15 %</div><div class="w">Define plataformas y costo de movimiento de tierra</div><span class="tag m">medido · DEM</span></div>
       <div><div class="v">9.7<small>km</small></div><div class="l">Al aeropuerto</div><div class="w">Línea recta; misma escala que Cayalá</div><span class="tag m">medido</span></div>
       <div><div class="v">3.7<small>%/año</small></div><div class="l">Crecimiento de Fraijanes</div><div class="w">2002–2020, ×1.92: la demanda se mueve hacia acá</div><span class="tag p">publicado</span></div>
       <div><div class="v">$79–90<small>/m²</small></div><div class="l">Tierra en la CA-1</div><div class="w">Precios de lista de lotes pequeños</div><span class="tag p">publicado</span></div>
-      <div><div class="v">4</div><div class="l">Nacimientos de agua</div><div class="w">Activo paisajístico; área de protección por definir</div><span class="tag m">plano 1991</span></div>
     </div>
   </div>
 </section>
@@ -344,15 +350,15 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
 <section class="slide" data-s="11">
   <div class="panel">
     <div class="kicker rv">Concepto · programa por definir</div>
-    <h2 class="rv">Tres franjas,<br><em>un frente compartido</em></h2>
+    <h2 class="rv">Consolidar<br><em>el frente comercial</em></h2>
     <div class="legend rv">
-      <div><i style="background:var(--gold)"></i>Comercio a nivel del frente sur<b id="bC">2.5 ha · 21 %</b></div>
-      <div><i style="background:var(--accent)"></i>Uso mixto: oficinas y vivienda sobre servicios<b id="bM">3.8 ha · 31 %</b></div>
-      <div><i style="background:var(--pine)"></i>Residencial con vista y bosque<b id="bR">5.9 ha · 48 %</b></div>
-      <div><i style="background:transparent;border:1.5px dashed var(--neighbor)"></i>Vecinos al Este<b>esquemático</b></div>
+      <div><i style="background:var(--gold)"></i>Comercio sobre la vía · segmento vecino<b>3.71 ha · 37,150 m²</b></div>
+      <div><i style="background:var(--accent)"></i>Uso mixto · franja sur de San Bernardo<b>3.86 ha · 38,610 m²</b></div>
+      <div><i style="background:var(--pine)"></i>Residencial con vista y bosque<b>8.37 ha · 83,750 m²</b></div>
+      <div style="border-top:1px solid var(--line);padding-top:10px"><i style="background:transparent"></i>Conjunto consolidado<b style="color:var(--ink)">15.95 ha · 159,515 m²</b></div>
     </div>
-    <div class="lead rv" style="margin-top:18px">Un solo frente comercial con los vecinos al Este, con acceso, estacionamiento y plaza compartidos, y cada predio desarrollando su propia vivienda atrás.</div>
-    <div class="src rv">Franjas de 65 m y 170 m de fondo desde el frente sur sobre el polígono KMZ <span class="tag e">concepto</span>. Límite del vecino ilustrativo, no levantado.</div>
+    <div class="lead rv" style="margin-top:18px">El vecino aporta el frente a la vía; San Bernardo, el fondo. Juntos forman un frente comercial de ≈518 m con acceso, estacionamiento y plaza compartidos.</div>
+    <div class="src rv">Áreas sobre el polígono KMZ y el trazo del segmento vecino <span class="tag e">concepto</span>. Uso mixto: franja de 100 m desde el lindero sur. El segmento vecino no tiene levantamiento.</div>
   </div>
 </section>
 
@@ -363,8 +369,8 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
     <h2 class="rv" style="font-size:clamp(44px,6vw,92px)">Un frente compartido<br><em>vale más</em> que dos sueltos.</h2>
     <div class="stats rv" style="grid-template-columns:repeat(3,1fr);text-align:left;max-width:860px;margin:30px auto 0">
       <div class="stat"><div class="v">×1.9</div><div class="l">población en 18 años: la demanda ya llegó</div></div>
-      <div class="stat"><div class="v">413 m</div><div class="l">de frente propio, que se extiende con el vecino</div></div>
-      <div class="stat"><div class="v">80 m</div><div class="l">de desnivel: una plataforma común baja el costo</div></div>
+      <div class="stat"><div class="v">518 m</div><div class="l">de frente a la vía al sumar 3.71 ha del vecino</div></div>
+      <div class="stat"><div class="v">16 ha</div><div class="l">≈159,500 m² consolidados: escala para un ancla</div></div>
     </div>
     <div class="rule rv" style="max-width:300px;margin:34px auto 20px"></div>
     <div class="rv" style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--mute)">PROPIEDAD SAN BERNARDO · ESTRATEGIA Y DISEÑO <b style="color:var(--ink);letter-spacing:.22em">TORUS.</b></div>
@@ -377,7 +383,7 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
   <div class="panel wide" style="width:min(980px,92vw)">
     <div class="kicker rv">Fuentes y créditos</div>
     <div class="sources rv">
-      <p><b>Terreno</b>Plano “Anexo de Finca San Bernardo”, Fraijanes, 1:500, abril 1991 (derrotero, curvas de nivel, nacimientos). Polígono KMZ “derrotero ajustado”. Mediciones TORUS. en UTM 15N (EPSG:32615).</p>
+      <p><b>Terreno</b>Plano “Anexo de Finca San Bernardo”, Fraijanes, 1:500, abril 1991 (derrotero, curvas de nivel, nacimientos). Polígono KMZ “derrotero ajustado”. Mediciones TORUS. en UTM 15N (EPSG:32615). Segmento vecino: trazo sobre imagen satelital, georreferenciado con los vértices del polígono (error ≈4 m).</p>
       <p><b>Demografía y territorio</b><a href="https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2025/05/0113_PDM_OT_FRAIJANES.pdf" target="_blank" rel="noopener">SEGEPLAN, PDM-OT Fraijanes 2020–2032</a>.</p>
       <p><b>Clima</b><a href="https://en.wikipedia.org/wiki/Fraijanes" target="_blank" rel="noopener">Wikipedia, Fraijanes (datos de Climate-Data.org)</a>. Ajuste por altitud: estimado TORUS.</p>
       <p><b>Mercado</b>Encuentra24, anuncios de terrenos en Carretera a El Salvador km <a href="https://www.encuentra24.com/guatemala-en/real-estate-for-sale-lots-land/desarrolladors-land-road-to-the-salvador-km18-plane/25187009" target="_blank" rel="noopener">18</a>, <a href="https://www.encuentra24.com/guatemala-es/bienes-raices-venta-de-propiedades-lotes-y-terrenos/terreno-en-fraijanes-km-20-5-carretera-al-salvador/31709050" target="_blank" rel="noopener">20.5</a> y <a href="https://www.encuentra24.com/guatemala-es/bienes-raices-venta-de-propiedades-lotes-y-terrenos/vendo-terreno-en-carretera-a-el-salvador/32320390" target="_blank" rel="noopener">26</a>. Precios de lista.</p>
@@ -390,10 +396,10 @@ svg text{font-family:var(--mono);fill:var(--faint);font-size:10px}
 
 <div id="gee" hidden><div class="bar2"><span>Google Earth Engine · Timelapse Landsat 1984–hoy</span><span><a class="btn" style="margin:0" id="geeLink" target="_blank" rel="noopener">Abrir en pestaña ↗</a> <button class="btn" style="margin:0" id="geeClose">Cerrar ✕</button></span></div><iframe id="geeFrame" title="Timelapse" loading="lazy"></iframe></div>
 
-<nav id="nav"><button id="prev" aria-label="Anterior">←</button><div id="dots"></div><button id="next" aria-label="Siguiente">→</button></nav>
+<nav id="nav"><div id="dots"></div><div id="navc"><button id="prev" aria-label="Anterior">←</button><span id="pg"><b>01</b> / 14</span><button id="next" aria-label="Siguiente">→</button></div></nav>
 
 <script>
-const GEO = {"site":{"type":"Polygon","coordinates":[[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]]},"south":{"type":"LineString","coordinates":[[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]},"bands":{"comercial":{"type":"GeometryCollection","geometries":[{"type":"Polygon","coordinates":[[[-90.462106,14.523902],[-90.462068,14.523908],[-90.46201,14.523912],[-90.461951,14.52391],[-90.461907,14.523907],[-90.461849,14.523907],[-90.461849,14.523907],[-90.461842,14.523909],[-90.461745,14.52393],[-90.46169,14.523939],[-90.461634,14.523944],[-90.461578,14.523943],[-90.461499,14.523938],[-90.461296,14.523952],[-90.461268,14.523953],[-90.461236,14.523954],[-90.461056,14.523981],[-90.460901,14.524011],[-90.46069,14.524066],[-90.460554,14.524111],[-90.460508,14.524124],[-90.460461,14.524134],[-90.459505,14.524294],[-90.459433,14.524302],[-90.459361,14.524301],[-90.458902,14.524269],[-90.458898,14.524269],[-90.458872,14.524267],[-90.458755,14.524264],[-90.458741,14.524268],[-90.458678,14.524277],[-90.458621,14.524279],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462032,14.523283],[-90.462096,14.523438],[-90.462106,14.523902]]]},{"type":"Point","coordinates":[-90.462092,14.523219]}]},"mixto":{"type":"Polygon","coordinates":[[[-90.462031,14.52486],[-90.461944,14.524858],[-90.461812,14.52488],[-90.461666,14.524892],[-90.461519,14.52489],[-90.461503,14.524889],[-90.461364,14.524898],[-90.461329,14.5249],[-90.461225,14.524915],[-90.461121,14.524936],[-90.460973,14.524974],[-90.460869,14.525009],[-90.460748,14.525044],[-90.460625,14.525069],[-90.45967,14.525229],[-90.459481,14.525249],[-90.459292,14.525247],[-90.458945,14.525223],[-90.458426,14.523713],[-90.458621,14.524279],[-90.458678,14.524277],[-90.458741,14.524268],[-90.458755,14.524264],[-90.458872,14.524267],[-90.458898,14.524269],[-90.458902,14.524269],[-90.459361,14.524301],[-90.459433,14.524302],[-90.459505,14.524294],[-90.460461,14.524134],[-90.460508,14.524124],[-90.460554,14.524111],[-90.46069,14.524066],[-90.460901,14.524011],[-90.461056,14.523981],[-90.461236,14.523954],[-90.461268,14.523953],[-90.461296,14.523952],[-90.461499,14.523938],[-90.461578,14.523943],[-90.461634,14.523944],[-90.46169,14.523939],[-90.461745,14.52393],[-90.461842,14.523909],[-90.461849,14.523907],[-90.461849,14.523907],[-90.461907,14.523907],[-90.461951,14.52391],[-90.46201,14.523912],[-90.462068,14.523908],[-90.462106,14.523902],[-90.462104,14.523791],[-90.462127,14.524854],[-90.462031,14.52486]]]},"residencial":{"type":"MultiPolygon","coordinates":[[[[-90.462077,14.523228],[-90.462092,14.523219],[-90.462096,14.523438],[-90.462032,14.523283],[-90.462077,14.523228]]],[[[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458945,14.525223],[-90.459292,14.525247],[-90.459481,14.525249],[-90.45967,14.525229],[-90.460625,14.525069],[-90.460748,14.525044],[-90.460869,14.525009],[-90.460973,14.524974],[-90.461121,14.524936],[-90.461225,14.524915],[-90.461329,14.5249],[-90.461364,14.524898],[-90.461503,14.524889],[-90.461519,14.52489],[-90.461666,14.524892],[-90.461812,14.52488],[-90.461944,14.524858],[-90.462031,14.52486],[-90.462127,14.524854],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717]]]]}},"neighbor":{"type":"Polygon","coordinates":[[[-90.458426,14.523713],[-90.459446,14.526679],[-90.456477,14.526828],[-90.455369,14.523499],[-90.458426,14.523713]]]},"stats":{"area":122367.48544783622,"per":1421.4905110244292,"south":406.5849773635521,"com":25393.485994450424,"mix":38240.477187323704,"res":58733.52451676351},"nacimientos":[[-90.461876,14.524923],[-90.460926,14.524944],[-90.460604,14.524967],[-90.461894,14.523819]],"casas":[[-90.461584,14.525219],[-90.459742,14.523768],[-90.45933,14.526763]],"labels":{"W":[-90.462127,14.524857],"N":[-90.460804,14.526586],"E":[-90.458936,14.525196],"S":[-90.459596,14.523576]},"verts":[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219]]};
+const GEO = {"site":{"type":"Polygon","coordinates":[[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]]},"south":{"type":"LineString","coordinates":[[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462092,14.523219]]},"bands":{"comercial":{"type":"Polygon","coordinates":[[[-90.457754,14.521685],[-90.457883,14.521744],[-90.458039,14.521779],[-90.458315,14.521994],[-90.458687,14.522193],[-90.458851,14.522242],[-90.459044,14.522352],[-90.459141,14.522427],[-90.459324,14.522625],[-90.459646,14.52286],[-90.459848,14.522909],[-90.460137,14.523021],[-90.46035,14.523048],[-90.46054,14.523108],[-90.461016,14.523125],[-90.461333,14.52309],[-90.461534,14.523093],[-90.461687,14.523131],[-90.4618,14.523197],[-90.461991,14.523221],[-90.462059,14.523249],[-90.462042,14.523271],[-90.461956,14.523307],[-90.461856,14.52332],[-90.461846,14.52332],[-90.461739,14.523321],[-90.461711,14.523336],[-90.461668,14.523345],[-90.461591,14.523355],[-90.461496,14.52335],[-90.461254,14.523366],[-90.461183,14.523368],[-90.46107,14.523385],[-90.46072,14.523402],[-90.46009,14.523573],[-90.459591,14.523617],[-90.459442,14.523662],[-90.45895,14.523673],[-90.458566,14.523636],[-90.458348,14.523673],[-90.458388,14.523639],[-90.458298,14.523455],[-90.458243,14.523253],[-90.458122,14.523068],[-90.457995,14.52275],[-90.457895,14.522389],[-90.457786,14.522126],[-90.457723,14.521902],[-90.457717,14.521747],[-90.457681,14.521684],[-90.457754,14.521685]]]},"mixto":{"type":"Polygon","coordinates":[[[-90.462113,14.524221],[-90.462107,14.524222],[-90.462017,14.524228],[-90.461927,14.524226],[-90.461894,14.524223],[-90.461887,14.524223],[-90.461815,14.524239],[-90.46173,14.524253],[-90.461644,14.52426],[-90.461558,14.524259],[-90.461499,14.524255],[-90.461317,14.524267],[-90.461281,14.524269],[-90.461268,14.524269],[-90.461113,14.524293],[-90.460975,14.524319],[-90.460785,14.524369],[-90.460659,14.524411],[-90.460588,14.524431],[-90.460515,14.524446],[-90.459559,14.524605],[-90.459448,14.524617],[-90.459337,14.524616],[-90.458878,14.524584],[-90.458875,14.524584],[-90.458858,14.524583],[-90.458782,14.524581],[-90.458727,14.524589],[-90.458426,14.523713],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219],[-90.462113,14.524221]]]},"residencial":{"type":"Polygon","coordinates":[[[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458727,14.524589],[-90.458782,14.524581],[-90.458858,14.524583],[-90.458875,14.524584],[-90.458878,14.524584],[-90.459337,14.524616],[-90.459448,14.524617],[-90.459559,14.524605],[-90.460515,14.524446],[-90.460588,14.524431],[-90.460659,14.524411],[-90.460785,14.524369],[-90.460975,14.524319],[-90.461113,14.524293],[-90.461268,14.524269],[-90.461281,14.524269],[-90.461317,14.524267],[-90.461499,14.524255],[-90.461558,14.524259],[-90.461644,14.52426],[-90.46173,14.524253],[-90.461815,14.524239],[-90.461887,14.524223],[-90.461894,14.524223],[-90.461927,14.524226],[-90.462017,14.524228],[-90.462107,14.524222],[-90.462113,14.524221],[-90.462127,14.524871]]]}},"neighbor":{"type":"Polygon","coordinates":[[[-90.457754,14.521685],[-90.457883,14.521744],[-90.458039,14.521779],[-90.458315,14.521994],[-90.458687,14.522193],[-90.458851,14.522242],[-90.459044,14.522352],[-90.459141,14.522427],[-90.459324,14.522625],[-90.459646,14.52286],[-90.459848,14.522909],[-90.460137,14.523021],[-90.46035,14.523048],[-90.46054,14.523108],[-90.461016,14.523125],[-90.461333,14.52309],[-90.461534,14.523093],[-90.461687,14.523131],[-90.4618,14.523197],[-90.461991,14.523221],[-90.462059,14.523249],[-90.462042,14.523271],[-90.461956,14.523307],[-90.461856,14.52332],[-90.461846,14.52332],[-90.461739,14.523321],[-90.461711,14.523336],[-90.461668,14.523345],[-90.461591,14.523355],[-90.461496,14.52335],[-90.461254,14.523366],[-90.461183,14.523368],[-90.46107,14.523385],[-90.46072,14.523402],[-90.46009,14.523573],[-90.459591,14.523617],[-90.459442,14.523662],[-90.45895,14.523673],[-90.458566,14.523636],[-90.458348,14.523673],[-90.458388,14.523639],[-90.458298,14.523455],[-90.458243,14.523253],[-90.458122,14.523068],[-90.457995,14.52275],[-90.457895,14.522389],[-90.457786,14.522126],[-90.457723,14.521902],[-90.457717,14.521747],[-90.457681,14.521684],[-90.457754,14.521685]]]},"stats":{"area":122367.48544783622,"per":1421.4905110244292,"south":406.5849773635521,"com":37155.877788942045,"mix":38612.37620188727,"res":83748.56718770879,"nb":37147.02755524034,"nbfront":518.2892737943929,"union":159514.51525377805},"nacimientos":[[-90.461876,14.524923],[-90.460926,14.524944],[-90.460604,14.524967],[-90.461894,14.523819]],"casas":[[-90.461584,14.525219],[-90.459742,14.523768],[-90.45933,14.526763]],"labels":{"W":[-90.462127,14.524857],"N":[-90.460804,14.526586],"E":[-90.458936,14.525196],"S":[-90.459596,14.523576]},"verts":[[-90.462092,14.523219],[-90.462127,14.524871],[-90.462161,14.526494],[-90.461266,14.526717],[-90.461181,14.52673],[-90.461095,14.526744],[-90.461011,14.526755],[-90.460887,14.526764],[-90.460815,14.526766],[-90.459622,14.526796],[-90.459486,14.5268],[-90.459446,14.526679],[-90.458426,14.523713],[-90.458506,14.52369],[-90.458575,14.523681],[-90.458622,14.523692],[-90.458678,14.523675],[-90.458903,14.52368],[-90.458944,14.523683],[-90.459403,14.523715],[-90.460359,14.523556],[-90.460515,14.523504],[-90.460765,14.523439],[-90.460952,14.523403],[-90.461183,14.523368],[-90.461254,14.523366],[-90.461496,14.52335],[-90.461614,14.523357],[-90.461711,14.523336],[-90.461739,14.523321],[-90.461846,14.52332],[-90.461929,14.52332],[-90.461997,14.523325],[-90.462077,14.523228],[-90.462092,14.523219]],"nbfront":{"type":"LineString","coordinates":[[-90.457681,14.521684],[-90.457754,14.521685],[-90.457883,14.521744],[-90.458039,14.521779],[-90.458315,14.521994],[-90.458687,14.522193],[-90.458851,14.522242],[-90.459044,14.522352],[-90.459141,14.522427],[-90.459324,14.522625],[-90.459646,14.52286],[-90.459848,14.522909],[-90.460137,14.523021],[-90.46035,14.523048],[-90.46054,14.523108],[-90.461016,14.523125],[-90.461333,14.52309],[-90.461534,14.523093],[-90.461687,14.523131],[-90.4618,14.523197],[-90.461991,14.523221],[-90.462033,14.523238]]},"nbc":[-90.4592,14.522953]};
 const C = [-90.460546, 14.525039];
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const N = 14;
@@ -434,7 +440,7 @@ function initMap(){
         dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:15,attribution:'Terrain: Mapzen/AWS'},
         site:{type:'geojson',data:{type:'Feature',properties:{},geometry:GEO.site}},
         trace:{type:'geojson',lineMetrics:true,data:lineFC(ring)},
-        front:{type:'geojson',lineMetrics:true,data:{type:'Feature',properties:{},geometry:GEO.south}},
+        front:{type:'geojson',lineMetrics:true,data:{type:'Feature',properties:{},geometry:GEO.nbfront}},
         bands:{type:'geojson',data:{type:'FeatureCollection',features:Object.entries(GEO.bands).map(([k,g])=>({type:'Feature',properties:{k},geometry:g}))}},
         nb:{type:'geojson',data:{type:'Feature',properties:{},geometry:GEO.neighbor}},
         shared:{type:'geojson',lineMetrics:true,data:lineFC([])},
@@ -450,8 +456,8 @@ function initMap(){
         {id:'roads',type:'line',source:'roads',paint:{'line-color':'#e6b866','line-opacity':0,'line-width':['match',['get','h'],'trunk',4,'primary',3,2]}},
         {id:'lines',type:'line',source:'lines',paint:{'line-color':'#cfe0a0','line-opacity':0,'line-width':1.6,'line-dasharray':[2,2]}},
         {id:'bands',type:'fill',source:'bands',paint:{'fill-color':['match',['get','k'],'comercial','#e6b866','mixto','#cfe0a0','#5f8f6e'],'fill-opacity':0}},
-        {id:'nb-fill',type:'fill',source:'nb',paint:{'fill-color':'#c7a5ff','fill-opacity':0}},
-        {id:'nb-line',type:'line',source:'nb',paint:{'line-color':'#c7a5ff','line-opacity':0,'line-width':2,'line-dasharray':[2,2]}},
+        {id:'nb-fill',type:'fill',source:'nb',paint:{'fill-color':'#ff3b30','fill-opacity':0}},
+        {id:'nb-line',type:'line',source:'nb',paint:{'line-color':'#ff3b30','line-opacity':0,'line-width':2.6}},
         {id:'site-fill',type:'fill',source:'site',paint:{'fill-color':'#cfe0a0','fill-opacity':0}},
         {id:'trace-glow',type:'line',source:'trace',layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':10,'line-blur':8,'line-opacity':0,'line-gradient':['step',['line-progress'],'rgba(207,224,160,.9)',0,'rgba(0,0,0,0)']}},
         {id:'trace',type:'line',source:'trace',layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':2.6,'line-opacity':0,'line-gradient':['step',['line-progress'],'#f3efe6',0,'rgba(0,0,0,0)']}},
@@ -472,7 +478,7 @@ const P = (id,prop,v)=>{ if(map && map.getLayer(id)) map.setPaintProperty(id,pro
 function layers(st){
   const s = Object.assign({ref:0,fill:0,trace:0,front:0,bands:0,nb:0,lines:0,roads:0,poi:0,rings:0,shared:0}, st);
   P('ref','raster-opacity',s.ref); P('site-fill','fill-opacity',s.fill); P('trace','line-opacity',s.trace); P('trace-glow','line-opacity',s.trace*.7);
-  P('front','line-opacity',s.front); P('bands','fill-opacity',s.bands); P('nb-fill','fill-opacity',s.nb*.18); P('nb-line','line-opacity',s.nb);
+  P('front','line-opacity',s.front); P('bands','fill-opacity',s.bands); P('nb-fill','fill-opacity',s.nb*.22); P('nb-line','line-opacity',s.nb);
   P('lines','line-opacity',s.lines); P('roads','line-opacity',s.roads); P('poi','circle-opacity',s.poi); P('poi','circle-stroke-opacity',s.poi);
   P('rings','line-opacity',s.rings*.6); P('shared','line-opacity',s.shared);
 }
@@ -540,7 +546,7 @@ function showSlope(){ const bars=$$('#hist .hbar'), pc=$$('#hist .pct');
     const flat=slope.cls[0]+slope.cls[1]; $('#dashSlope').innerHTML=Math.round(flat*100)+'<small>%</small>';
     $('#topoDrop').textContent='≈'+Math.round(slope.mx-slope.mn);
     $('#topoSrc').innerHTML=`DEM en vivo: ${Math.round(slope.mn).toLocaleString('en-US')}–${Math.round(slope.mx).toLocaleString('en-US')} msnm, pendiente media ${slope.mean.toFixed(0)} %, ≈${(flat*12.6).toFixed(1)} ha bajo 15 %. Plano 1991: curvas de 1,890 a 1,975. <span class="tag m">medido</span> AWS Terrain Tiles (SRTM ≈30 m). Puntos azules: 4 nacimientos de agua del plano, ubicación aproximada.`;
-  } else { pc.forEach(p=>p.textContent='—'); $('#dashSlope').innerHTML='≈20<small>% media</small>'; }
+  } else { pc.forEach(p=>p.textContent='—'); $('#dashSlope').innerHTML='—'; }
 }
 demAnalysis().then(showSlope).catch(()=>{ showSlope(); const s=$('#topoSrc'); s.innerHTML='Plano 1991: curvas de 1,890 a 1,975 msnm, pendiente media ≈20 % (80 m en ≈390 m). No se pudo cargar el DEM en vivo. Puntos azules: 4 nacimientos de agua, ubicación aproximada.'; });
 
@@ -620,18 +626,21 @@ function stopOrbit(){ if(orbit) cancelAnimationFrame(orbit); orbit=null; }
 
 const L = GEO.labels;
 const anchors=[['Aeropuerto La Aurora',[-90.5275,14.5833]],['Cayalá',[-90.4886,14.6106]],['Centro Histórico',[-90.5133,14.6425]],['Fraijanes',[-90.4333,14.4667]]];
-function sideLabels(){ addMk(L.S,'Frente sur · 413 m','side'); addMk(L.N,'Norte · 311 m','side'); addMk(L.E,'Este · 352 m','side'); addMk(L.W,'Oeste · 368 m','side'); }
+function sideLabels(){ addMk(L.S,'Lindero sur · 413 m','side'); addMk(L.N,'Norte · 311 m','side'); addMk(L.E,'Este · 352 m','side'); addMk(L.W,'Oeste · 368 m','side'); }
 
 const S = [
-  /*0*/ async tk=>{ scrim('left'); terrain(true); layers({ref:.7,fill:.6,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow'); await fly({center:[-90.49,14.575],zoom:10.9,pitch:40,bearing:-10,duration:2500}); if(tk!==token) return; addMk(C,'San Bernardo','side'); anchors.slice(0,3).forEach(([n,p])=>addMk(p,`<i></i>${n}`,'pin')); startOrbit(); },
+  /*0*/ async tk=>{ scrim('left'); terrain(true); layers({ref:.7,fill:.6,trace:1,nb:.8}); setTrace('trace',1,'#f3efe6','trace-glow'); await fly({center:[-90.49,14.575],zoom:10.9,pitch:40,bearing:-10,duration:2500}); if(tk!==token) return; addMk(C,'San Bernardo','side'); anchors.slice(0,3).forEach(([n,p])=>addMk(p,`<i></i>${n}`,'pin')); startOrbit(); },
   /*1*/ async tk=>{ scrim('none'); terrain(false); layers({ref:.85}); $('#hud').classList.add('on'); $('#reticle').classList.add('on');
         const st=[['Fraijanes · Carretera a El Salvador',{center:[-90.472,14.538],zoom:13,pitch:35,bearing:0}],['San Bernardo',{center:C,zoom:16.2,pitch:48,bearing:-12}]];
         $('#hudStage').textContent='Valle de Guatemala'; layers({ref:.85}); setTrace('trace',0,'#f3efe6','trace-glow'); traced=false; await fly({center:[-90.50,14.59],zoom:10.6,pitch:0,bearing:0,duration:1800}); await sleep(700);
         for(const [name,cam] of st){ if(tk!==token) return; $('#hudStage').textContent=name; if(name==='San Bernardo'){ layers({ref:0}); $('#reticle').classList.remove('on'); }
           await fly({...cam,duration:3800,curve:1.2}); await sleep(name==='San Bernardo'?0:600); }
         if(tk!==token) return; await drawBoundary(tk); },
-  /*2*/ async tk=>{ scrim('left'); terrain(false); layers({fill:.16,trace:1,front:.9}); setTrace('trace',1,'#f3efe6','trace-glow');
-        await fly({center:C,zoom:16.5,pitch:0,bearing:0,duration:2400}); if(tk!==token) return; sideLabels(); addMk([C[0],C[1]+0.0003],'12.6 ha','area'); },
+  /*2*/ async tk=>{ scrim('left'); terrain(false); layers({fill:.16,trace:1,front:.95,nb:1}); setTrace('trace',1,'#f3efe6','trace-glow');
+        await fly({center:[C[0]+0.0012,C[1]-0.0010],zoom:16.2,pitch:0,bearing:0,duration:2400}); if(tk!==token) return; sideLabels();
+        addMk([C[0],C[1]+0.0003],'12.6 ha<br><span style="font-family:var(--mono);font-size:11px;color:var(--mute)">126,230 m²</span>','area');
+        addMk(GEO.nbc,'<span style="color:#ff6b5e">Segmento vecino</span> · 3.71 ha · 37,150 m²','side');
+        const fc=GEO.nbfront.coordinates; addMk([fc[Math.floor(fc.length*0.35)][0],fc[Math.floor(fc.length*0.35)][1]-0.00025],'Frente a la vía · ≈518 m','side'); },
   /*3*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.1,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
         await fly({center:[C[0],C[1]-0.0004],zoom:16.3,pitch:64,bearing:-20,duration:2800}); if(tk!==token) return;
         GEO.nacimientos.forEach(p=>addMk(p,'','dot')); addMk([L.S[0],L.S[1]-0.0002],'≈1,895 msnm','side'); addMk([L.N[0],L.N[1]+0.0002],'≈1,970 msnm','side'); },
@@ -648,18 +657,16 @@ const S = [
         if(!osmDone) loadOSM();
         await fly({center:C,zoom:12.0,pitch:0,bearing:0,duration:2600}); if(tk!==token) return;
         [1,3,5].forEach(k=>addMk([C[0],C[1]+k/110.57],k+' km','side')); },
-  /*9*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.15,trace:1,front:.9}); await fly({center:C,zoom:14.6,pitch:55,bearing:-35,duration:2800}); if(tk===token) startOrbit(); },
+  /*9*/ async tk=>{ scrim('left'); terrain(true); layers({fill:.15,trace:1,front:.9,nb:.8}); await fly({center:C,zoom:14.6,pitch:55,bearing:-35,duration:2800}); if(tk===token) startOrbit(); },
   /*10*/async tk=>{ scrim('full'); terrain(true); layers({fill:.15,trace:1}); await fly({center:C,zoom:15.4,pitch:60,bearing:30,duration:2600}); if(tk===token) startOrbit(); },
-  /*11*/async tk=>{ scrim('left'); terrain(false); layers({bands:.55,nb:1,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
-        const s=GEO.south.coordinates, e=GEO.neighbor.coordinates[0]; const shared=[e[3], ...s];
-        map&&map.getSource('shared').setData(lineFC(shared)); setTrace('shared',0,'#e6b866');
-        await fly({center:[C[0]+0.0012,C[1]],zoom:15.8,pitch:30,bearing:0,duration:2600}); if(tk!==token) return;
-        layers({bands:.55,nb:1,trace:1,shared:1}); animTrace('shared','#e6b866',null,2200,tk);
-        const bc=k=>{ const c=GEO.bands[k].type==='Polygon'?GEO.bands[k].coordinates[0]:GEO.bands[k].coordinates[0][0]; const x=c.reduce((a,p)=>a+p[0],0)/c.length, y=c.reduce((a,p)=>a+p[1],0)/c.length; return [x,y]; };
-        addMk(bc('comercial'),'<span style="color:var(--gold)">Comercio</span>','band'); addMk(bc('mixto'),'<span style="color:var(--accent)">Uso mixto</span>','band'); addMk(bc('residencial'),'<span style="color:#9fd3ad">Residencial</span>','band');
-        const ec=e.slice(0,4); addMk([ec.reduce((a,p)=>a+p[0],0)/4, ec.reduce((a,p)=>a+p[1],0)/4],'<span style="color:var(--neighbor)">Vecinos al Este</span>','band');
-        addMk([s[Math.floor(s.length/2)][0], s[Math.floor(s.length/2)][1]-0.00035],'Frente comercial compartido →','side'); },
-  /*12*/async tk=>{ scrim('full'); terrain(true); layers({fill:.15,trace:1}); await fly({center:C,zoom:14.6,pitch:65,bearing:-40,duration:3000}); if(tk===token) startOrbit(); },
+  /*11*/async tk=>{ scrim('left'); terrain(false); layers({bands:.55,nb:.6,trace:1}); setTrace('trace',1,'#f3efe6','trace-glow');
+        map&&map.getSource('shared').setData(lineFC(GEO.nbfront.coordinates)); setTrace('shared',0,'#e6b866');
+        await fly({center:[C[0]+0.0012,C[1]-0.0010],zoom:16.0,pitch:30,bearing:0,duration:2600}); if(tk!==token) return;
+        layers({bands:.55,nb:.6,trace:1,shared:1}); animTrace('shared','#e6b866',null,2200,tk);
+        const bc=k=>{ const g=GEO.bands[k]; const c=g.type==='Polygon'?g.coordinates[0]:g.coordinates[0][0]; const x=c.reduce((a,p)=>a+p[0],0)/c.length, y=c.reduce((a,p)=>a+p[1],0)/c.length; return [x,y]; };
+        addMk(GEO.nbc,'<span style="color:var(--gold)">Comercio · 3.71 ha</span>','band'); addMk(bc('mixto'),'<span style="color:var(--accent)">Uso mixto · 3.86 ha</span>','band'); addMk(bc('residencial'),'<span style="color:#9fd3ad">Residencial · 8.37 ha</span>','band');
+        const fc=GEO.nbfront.coordinates; addMk([fc[Math.floor(fc.length*0.35)][0],fc[Math.floor(fc.length*0.35)][1]-0.00025],'Frente comercial ≈518 m','side'); },
+  /*12*/async tk=>{ scrim('full'); terrain(true); layers({fill:.15,trace:1,nb:.8,front:.9}); await fly({center:C,zoom:14.6,pitch:65,bearing:-40,duration:3000}); if(tk===token) startOrbit(); },
   /*13*/async tk=>{ scrim('full'); terrain(false); layers({ref:.5,fill:.5,trace:1}); await fly({center:[-90.49,14.575],zoom:11,pitch:0,bearing:0,duration:3000}); }
 ];
 function scrim(k){ $('#scrim').className='scrim-'+k; const land=innerWidth>=innerHeight;
@@ -669,7 +676,7 @@ function go(i, force){
   i=Math.max(0,Math.min(N-1,i)); if(i===cur && !force) return; cur=i; token++; const tk=token;
   $$('.slide').forEach(s=>s.classList.toggle('active', +s.dataset.s===i));
   $$('#dots i').forEach((d,j)=>d.classList.toggle('on',j===i));
-  $('#count').textContent=String(i+1).padStart(2,'0')+' / '+N;
+  $('#count').textContent=String(i+1).padStart(2,'0')+' / '+N; $('#pg').innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b> / '+N; $('#prev').disabled=i===0; $('#next').disabled=i===N-1;
   history.replaceState(null,'','#s'+(i+1));
   $('#hud').classList.remove('on'); $('#reticle').classList.remove('on');
   stopSpin(); stopOrbit(); clearMk(); if(i!==7) hideGfw();
